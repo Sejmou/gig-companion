@@ -7,6 +7,7 @@ import { Ableton } from 'ableton-js';
 import {
 	processClientAction,
 	processClientPropUpdateRequest,
+	sendCurrentSetState,
 	setupSetUpdateListeners
 } from './ableton';
 import { isAction } from '../ableton/types/actions';
@@ -43,6 +44,7 @@ export const createGlobalInstances = async () => {
 
 	wss.on('connection', (ws) => {
 		console.log(`WebSocket client connected`);
+		sendCurrentSetState(ws, ableton);
 		ws.on('message', (message) => {
 			const data = JSON.parse(message.toString());
 			console.log('Client message received', data);

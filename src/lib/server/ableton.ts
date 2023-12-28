@@ -5,6 +5,24 @@ import type { Ableton } from 'ableton-js';
 import type { Track as AbletonTrack } from 'ableton-js/ns/track';
 import { GlobalThisAbleton, GlobalThisWSS } from './websocket';
 import type { ExtendedGlobal } from './websocket';
+import type WebSocket from 'ws';
+
+export async function sendCurrentSetState(ws: WebSocket, ableton: Ableton) {
+	const playing = await ableton.song.get('is_playing');
+	const bpm = await ableton.song.get('tempo');
+	const time = await ableton.song.get('current_song_time');
+	ws.send(
+		JSON.stringify({
+			type: 'propUpdate',
+			scope: 'set',
+			update: {
+				playing,
+				bpm,
+				time
+			}
+		})
+	);
+}
 
 export function setupSetUpdateListeners(ableton: Ableton) {
 	ableton.song.addListener('is_playing', (playing) => {
