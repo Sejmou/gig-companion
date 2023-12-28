@@ -53,6 +53,16 @@ function createPlayingStore() {
 }
 
 export const playing = createPlayingStore();
-export const playMode = writable<'continue' | 'start'>('continue');
+export const playMode = writable<'continue' | 'start'>('start');
+export const playModes = [
+	{
+		value: 'continue',
+		label: 'Continue where last stopped'
+	},
+	{
+		value: 'start',
+		label: 'Always start from marker position'
+	}
+] as const;
 export const time = derived(timeInternal, ($time) => $time);
 export const bpm = derived(bpmInternal, ($bpm) => $bpm);
