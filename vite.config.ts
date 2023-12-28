@@ -1,7 +1,7 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
-import { createWSSGlobalInstance, onHttpServerUpgrade } from './src/lib/server/websocket';
+import { createGlobalInstances, onHttpServerUpgrade } from './src/lib/server/websocket';
 
 export default defineConfig({
 	plugins: [
@@ -9,11 +9,11 @@ export default defineConfig({
 		{
 			name: 'integratedWebsocketServer',
 			configureServer(server) {
-				createWSSGlobalInstance();
+				createGlobalInstances();
 				server.httpServer?.on('upgrade', onHttpServerUpgrade);
 			},
 			configurePreviewServer(server) {
-				createWSSGlobalInstance();
+				createGlobalInstances();
 				server.httpServer?.on('upgrade', onHttpServerUpgrade);
 			}
 		}
