@@ -1,13 +1,13 @@
+// this file is run once on server start
+// it creates a globalThis object with WebSocket Server (wss) and Ableton (ableton) instances
+// the global wss and ableton are reused in server-related code
+// I am deliberatly not putting the specific Ableton setup code here as this code is called in such a way that the $lib alias is not available
+// The setup code is run at a later point in time, when the $lib alias is available, from src/hooks.server.ts
 import { parse } from 'url';
 import { WebSocketServer } from 'ws';
 import type { IncomingMessage } from 'http';
 import type { Duplex } from 'stream';
 import { Ableton } from 'ableton-js';
-// cannot use imports with $lib prefix here!
-// import { processClientAction, processClientPropUpdateRequest } from './ableton';
-// import { isAction } from '../ableton/types/actions';
-// import { isPropUpdate } from '../ableton/types/prop-updates';
-// import { sendCurrentSetState, setupSetUpdateListeners } from './ableton/set';
 
 const GlobalThisWSS = Symbol.for('sveltekit.wss');
 const GlobalThisAbleton = Symbol.for('sveltekit.ableton');
@@ -36,25 +36,7 @@ export const createGlobalInstances = async () => {
 	const ableton = new Ableton({ logger: console });
 	await ableton.start();
 	(globalThis as ExtendedGlobal)[GlobalThisAbleton] = ableton;
-	// TODO: move this to separate file
-	// setupSetUpdateListeners(ableton);
-
-	wss.on('connection', (ws) => {
-		console.log(`WebSocket client connected`);
-		// sendCurrentSetState(ws, ableton);
-		ws.on('message', (message) => {
-			const data = JSON.parse(message.toString());
-			console.log('Client message received', data);
-			// TODO: move this to separate file
-			// if (isPropUpdate(data)) processClientPropUpdateRequest(data);
-			// else if (isAction(data)) processClientAction(data);
-			// else console.warn('Unknown message received', data);
-		});
-
-		ws.on('close', () => {
-			console.log(`WebSocket client disconnected`);
-		});
-	});
-
-	return wss;
 };
+
+export const getAbleton = () => (globalThis as ExtendedGlobal)[GlobalThisAbleton];
+export const getWSS = () => (globalThis as ExtendedGlobal)[GlobalThisWSS];
