@@ -27,6 +27,13 @@
 			>
 				<li>
 					<a
+						href="/songs"
+						class={$page.url.pathname == '/songs' ? 'text-black dark:text-white' : 'text-gray-500'}
+						>Songs</a
+					>
+				</li>
+				<li>
+					<a
 						href="/settings"
 						class={$page.url.pathname == '/settings'
 							? 'text-black dark:text-white'
@@ -42,6 +49,13 @@
 	</div>
 	<div class="hidden lg:flex">
 		<ul class="menu menu-horizontal px-1">
+			<li>
+				<a
+					href="/songs"
+					class={$page.url.pathname == '/songs' ? 'text-black dark:text-white' : 'text-gray-500'}
+					>Songs</a
+				>
+			</li>
 			<li>
 				<a
 					href="/settings"

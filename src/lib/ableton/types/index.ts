@@ -9,15 +9,17 @@ export type LiveSet = {
 	songs: Song[];
 };
 
+export type Track = MidiOrAudioTrack | GroupTrack;
+
 export type MidiOrAudioTrack = TrackBase & {
 	type: 'midiOrAudio';
 	armed: boolean;
-	// TODO: investigate what values are possible and what they mean
-	monitoringState: number;
+	monitoringState: 'in' | 'auto' | 'off';
 };
 
 export type GroupTrack = TrackBase & {
 	type: 'group';
+	tracks: Track[];
 };
 
 export type TrackBase = {

@@ -1,7 +1,7 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
-import { createGlobalInstances, onHttpServerUpgrade } from './src/lib/server/websocket';
+import { createGlobalInstances, onHttpServerUpgrade } from './src/lib/server/init';
 
 export default defineConfig({
 	plugins: [
