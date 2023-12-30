@@ -1,13 +1,18 @@
-import { isChange } from './';
+import { isChange } from '.';
 
-export type Action = SetAction;
-export type ActionScope = Action['scope'];
+export type ClientAction = SetAction;
+export type ActionScope = ClientAction['scope'];
 export const actionScopes: ActionScope[] = ['set'] as const;
 
 export type SetAction = StartPlayback | ContinuePlayback | StopPlayback;
 
-export const isAction = (unknown: unknown): unknown is Action => {
-	return isChange(unknown) && unknown.type == 'action' && actionScopes.includes(unknown.scope);
+export const isAction = (unknown: unknown): unknown is ClientAction => {
+	return (
+		isChange(unknown) &&
+		unknown.type == 'action' &&
+		'scope' in unknown &&
+		actionScopes.includes(unknown.scope)
+	);
 };
 
 type StartPlayback = {

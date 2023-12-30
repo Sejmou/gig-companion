@@ -8,7 +8,6 @@ const bpmInternal = writable(0);
 const connectedInternal = writable(false);
 
 export function handleSetPropUpdate(data: SetUpdate) {
-	console.log('Prop update received', data);
 	const { update } = data;
 	const { playing, time, bpm, connected } = update;
 	if (playing !== undefined) {

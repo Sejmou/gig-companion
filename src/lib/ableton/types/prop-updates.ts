@@ -20,6 +20,9 @@ export type SetUpdate = {
 
 export const isPropUpdate = (unknown: unknown): unknown is PropUpdate => {
 	return (
-		isChange(unknown) && unknown.type == 'propUpdate' && propUpdateScopes.includes(unknown.scope)
+		isChange(unknown) &&
+		unknown.type == 'propUpdate' &&
+		'scope' in unknown &&
+		propUpdateScopes.includes(unknown.scope)
 	);
 };

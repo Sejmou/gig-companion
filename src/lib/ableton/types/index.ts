@@ -1,6 +1,7 @@
 import type { Device } from 'ableton-js/ns/device';
 import type { PropUpdate } from './prop-updates';
-import type { Action } from './actions';
+import type { ClientAction } from './client-actions';
+import type { ServerEvent } from './server-events';
 
 /**
  * The current state of Ableton Live's set.
@@ -65,9 +66,9 @@ type Section = {
 	timestamp: number;
 };
 
-export type Change = PropUpdate | Action;
+export type Change = PropUpdate | ClientAction | ServerEvent;
 export type ChangeType = Change['type'];
 
 export const isChange = (unknown: unknown): unknown is Change => {
-	return typeof unknown == 'object' && unknown !== null && 'type' in unknown && 'scope' in unknown;
+	return typeof unknown == 'object' && unknown !== null && 'type' in unknown;
 };

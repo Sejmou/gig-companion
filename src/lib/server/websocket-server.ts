@@ -16,7 +16,9 @@ export const onHttpServerUpgrade = (req: IncomingMessage, sock: Duplex, head: Bu
 	const pathname = req.url ? parse(req.url).pathname : null;
 	if (pathname !== '/websocket') return;
 
-	const wss = getWSS();
+	console.log('[onHttpServerUpgrade] creating new connection');
+
+	const wss = getWebSocketServer();
 
 	wss.handleUpgrade(req, sock, head, (ws) => {
 		console.log('[handleUpgrade] creating new connection');
@@ -24,7 +26,7 @@ export const onHttpServerUpgrade = (req: IncomingMessage, sock: Duplex, head: Bu
 	});
 };
 
-export const getWSS = () => {
+export const getWebSocketServer = () => {
 	const wss = (globalThis as ExtendedGlobal)[GlobalThisWSS];
 	if (wss) return wss;
 	const newWSS = new WebSocketServer({ noServer: true });

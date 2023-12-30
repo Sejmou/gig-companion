@@ -1,8 +1,28 @@
 import { isPropUpdate } from '$lib/ableton/types/prop-updates';
 import { handleSetPropUpdate } from '$lib/ableton/client/stores/set';
+import { isServerEvent } from './ableton/types/server-events';
+import type { ClientReady } from './ableton/types/client-events';
+import { serverReady } from '$lib/ableton/client/stores/server-state';
+import { get } from 'svelte/store';
 
 function handleConnectionOpen(event: Event) {
 	console.log('WebSocket connection opened', event);
+
+	// tell the server that we're ready to communicate with the server
+	// we expect to later receive a 'ready' event from the server in response
+	const readyMsg: ClientReady = {
+		type: 'clientEvent',
+		name: 'ready'
+	};
+	ws.send(JSON.stringify(readyMsg));
+	console.log('Sent ready message to server');
+	setTimeout(() => {
+		const receivedReady = get(serverReady);
+		if (!receivedReady) {
+			console.warn('Server did not respond to ready event. Trying to reconnect...');
+			resetWebsocketConnection();
+		}
+	}, 2000);
 }
 
 function handleConnectionClose(event: CloseEvent) {
@@ -14,14 +34,17 @@ function handleConnectionError(event: Event) {
 }
 
 function handleMessageReceived(event: MessageEvent) {
-	const data = JSON.parse(event.data);
-	console.log('[websocket] message received', data);
-	if (isPropUpdate(data)) {
-		console.log('Prop update received', data);
-		if (data.scope == 'set') {
-			handleSetPropUpdate(data);
+	const msg = JSON.parse(event.data);
+	console.log('Received message from server', msg);
+	if (isServerEvent(msg)) {
+		if (msg.name === 'ready') {
+			serverReady.set(true);
 		}
-	} else console.warn('Unknown message received', data);
+	} else if (isPropUpdate(msg)) {
+		if (msg.scope == 'set') {
+			handleSetPropUpdate(msg);
+		}
+	} else console.warn('Unknown message received', msg);
 }
 
 function createWebSocketConnection() {
@@ -45,6 +68,7 @@ export function resetWebsocketConnection() {
 	ws.removeEventListener('message', handleMessageReceived);
 	ws.close();
 	ws = createWebSocketConnection();
+	serverReady.set(false);
 }
 
 export let ws = createWebSocketConnection();

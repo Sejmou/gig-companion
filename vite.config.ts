@@ -1,7 +1,7 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
-import { getWSS, onHttpServerUpgrade } from './src/lib/server/websocket';
+import { getWebSocketServer, onHttpServerUpgrade } from './src/lib/server/websocket-server';
 
 export default defineConfig({
 	plugins: [
@@ -9,11 +9,11 @@ export default defineConfig({
 		{
 			name: 'integratedWebsocketServer',
 			configureServer(server) {
-				getWSS();
+				getWebSocketServer();
 				server.httpServer?.on('upgrade', onHttpServerUpgrade);
 			},
 			configurePreviewServer(server) {
-				getWSS();
+				getWebSocketServer();
 				server.httpServer?.on('upgrade', onHttpServerUpgrade);
 			}
 		}

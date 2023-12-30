@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { ws, resetWebsocketConnection } from '$lib/websocket';
+	import { ws, resetWebsocketConnection } from '$lib/websocket-client';
 </script>
 
 <div class="navbar bg-base-100">

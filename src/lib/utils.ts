@@ -39,7 +39,7 @@ export class TwoWayMap<K, V> {
 
 type ServiceMonitorConfig = {
 	checkInterval: number;
-	startService: () => Promise<boolean> | boolean;
+	startService?: () => Promise<boolean> | boolean;
 	checkServiceRunning: () => Promise<boolean> | boolean;
 	serviceName: string;
 	onServiceOnline?: () => void;
@@ -52,7 +52,7 @@ export class ServiceMonitor {
 	private intervalId: number | NodeJS.Timeout | null = null;
 	private startingService: boolean = false;
 	private readonly checkInterval: number;
-	private startService: () => Promise<boolean> | boolean;
+	private startService?: () => Promise<boolean> | boolean;
 	private lastServiceRunning: boolean = false;
 	private checkServiceRunning: () => Promise<boolean> | boolean;
 	private readonly serviceName: string;
@@ -88,7 +88,7 @@ export class ServiceMonitor {
 			}
 			this.lastServiceRunning = running;
 			if (!running) {
-				if (!this.startingService) {
+				if (this.startService && !this.startingService) {
 					console.log(`${this.serviceName} not running. Starting...`);
 					this.startingService = true;
 					const success = await this.startService();
