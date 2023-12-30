@@ -1,15 +1,16 @@
 import { derived, get, writable } from 'svelte/store';
-import type { SetPropUpdate } from '$lib/ableton/types/prop-updates';
+import type { SetUpdate } from '$lib/ableton/types/prop-updates';
 import { sendAction } from '../actions';
 
 const playingInternal = writable(false);
 const timeInternal = writable(0);
 const bpmInternal = writable(0);
+const connectedInternal = writable(false);
 
-export function handleSetPropUpdate(data: SetPropUpdate) {
+export function handleSetPropUpdate(data: SetUpdate) {
 	console.log('Prop update received', data);
 	const { update } = data;
-	const { playing, time, bpm } = update;
+	const { playing, time, bpm, connected } = update;
 	if (playing !== undefined) {
 		playingInternal.set(playing);
 	}
@@ -18,6 +19,9 @@ export function handleSetPropUpdate(data: SetPropUpdate) {
 	}
 	if (bpm !== undefined) {
 		bpmInternal.set(bpm);
+	}
+	if (connected !== undefined) {
+		connectedInternal.set(connected);
 	}
 }
 
@@ -66,3 +70,4 @@ export const playModes = [
 ] as const;
 export const time = derived(timeInternal, ($time) => $time);
 export const bpm = derived(bpmInternal, ($bpm) => $bpm);
+export const connected = derived(connectedInternal, ($connected) => $connected);

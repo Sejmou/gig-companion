@@ -1,9 +1,8 @@
 import type { GroupTrack, MidiOrAudioTrack, TrackBase } from '$lib/ableton/types';
-import type { TrackPropUpdate } from '$lib/ableton/types/prop-updates';
+import type { TrackUpdate } from '$lib/ableton/types/prop-updates';
 import { TwoWayMap } from '$lib/utils';
 import type { Ableton } from 'ableton-js';
 import type { Track as AbletonTrack } from 'ableton-js/ns/track';
-import { getAbleton } from '../init';
 
 export async function getCurrentTracks(ableton: Ableton) {
 	const tracks = await ableton.song.get('tracks');
@@ -23,8 +22,7 @@ export async function getCurrentTracks(ableton: Ableton) {
 	return processedTracks;
 }
 
-export async function updateTrackProp(request: TrackPropUpdate) {
-	const ableton = getAbleton();
+export async function updateTrackProp(ableton: Ableton, request: TrackUpdate) {
 	const { trackId, update: trackUpdate } = request;
 	const tracks = await ableton.song.get('tracks');
 	const track = tracks.find((t) => t.raw.id === trackId);

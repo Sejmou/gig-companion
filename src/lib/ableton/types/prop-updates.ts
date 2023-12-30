@@ -1,10 +1,10 @@
-import { isChange, type GroupTrack, type MidiOrAudioTrack, type LiveSet } from './';
+import { isChange, type GroupTrack, type MidiOrAudioTrack, type SetState } from './';
 
-export type PropUpdate = TrackPropUpdate | SetPropUpdate;
+export type PropUpdate = TrackUpdate | SetUpdate;
 export type PropUpdateScope = PropUpdate['scope'];
 const propUpdateScopes: PropUpdateScope[] = ['track', 'set'] as const;
 
-export type TrackPropUpdate = {
+export type TrackUpdate = {
 	type: 'propUpdate';
 	scope: 'track';
 	trackType: 'midiOrAudio' | 'group';
@@ -12,10 +12,10 @@ export type TrackPropUpdate = {
 	update: Partial<MidiOrAudioTrack | GroupTrack>;
 };
 
-export type SetPropUpdate = {
+export type SetUpdate = {
 	type: 'propUpdate';
 	scope: 'set';
-	update: Partial<LiveSet>;
+	update: Partial<SetState>;
 };
 
 export const isPropUpdate = (unknown: unknown): unknown is PropUpdate => {
