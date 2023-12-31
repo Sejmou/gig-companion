@@ -1,4 +1,4 @@
-import type { GroupTrack, MidiOrAudioTrack, TrackBase } from '$lib/ableton/types';
+import type { GroupTrack, MidiOrAudioTrack, TrackBase } from '$lib/ableton/types/state/track';
 import { TwoWayMap } from '$lib/utils';
 import type { Ableton } from 'ableton-js';
 import type { Track as AbletonTrack } from 'ableton-js/ns/track';

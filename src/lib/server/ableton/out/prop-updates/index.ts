@@ -1,6 +1,7 @@
 import type { Ableton } from 'ableton-js';
 import { getCurrentSetState, setupSetUpdateListeners } from './set';
-import type { PropUpdate, SetUpdate } from '$lib/ableton/types/prop-updates';
+import type { PropUpdate } from '$lib/ableton/types/prop-updates';
+import type { SetUpdate } from '$lib/ableton/types/prop-updates/set';
 import type { WebSocket } from 'ws';
 import { broadcastChange } from '..';
 

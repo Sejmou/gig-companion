@@ -10,10 +10,10 @@ import {
 	sendCurrentLiveState,
 	sendLiveOffline,
 	setupLiveUpdateListeners
-} from '$lib/server/ableton/updates/props';
+} from '$lib/server/ableton/out/prop-updates';
 import type { WebSocket, WebSocketServer } from 'ws';
-import { processClientMessage } from '$lib/server/ableton/incoming-messages';
-import { sendServerEvent } from '$lib/server/ableton/updates/server-events';
+import { processClientMessage } from '$lib/server/ableton/in';
+import { sendServerEvent } from '$lib/server/ableton/out/events';
 import { isClientEvent } from '$lib/ableton/types/client-events';
 
 async function abletonSetup() {

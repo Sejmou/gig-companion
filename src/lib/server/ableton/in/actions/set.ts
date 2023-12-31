@@ -1,4 +1,4 @@
-import type { SetAction } from '$lib/ableton/types/client-actions';
+import type { SetAction } from '$lib/ableton/types/client-actions/set';
 import type { Ableton } from 'ableton-js';
 
 export async function executeSetAction(ableton: Ableton, action: SetAction) {

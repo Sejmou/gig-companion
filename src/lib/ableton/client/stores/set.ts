@@ -1,5 +1,5 @@
 import { derived, get, writable } from 'svelte/store';
-import type { SetUpdate } from '$lib/ableton/types/prop-updates';
+import type { SetUpdate } from '$lib/ableton/types/prop-updates/set';
 import { sendAction } from '../actions';
 
 const playingInternal = writable(false);

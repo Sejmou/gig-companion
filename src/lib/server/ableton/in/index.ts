@@ -3,7 +3,7 @@ import { isPropUpdate, type PropUpdate } from '$lib/ableton/types/prop-updates';
 import type { Ableton } from 'ableton-js';
 import { updateSetProp } from './prop-updates/set';
 import { executeSetAction } from './actions/set';
-import { updateTrackProp } from './prop-updates/tracks';
+import { updateTrackProp } from './prop-updates/track';
 
 /**
  * Processes messages received from clients. These messages change the state of Ableton Live.

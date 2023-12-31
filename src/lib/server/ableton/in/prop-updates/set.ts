@@ -1,4 +1,4 @@
-import type { SetUpdate } from '$lib/ableton/types/prop-updates';
+import type { SetUpdate } from '$lib/ableton/types/prop-updates/set';
 import type { Ableton } from 'ableton-js';
 
 export async function updateSetProp(ableton: Ableton, request: SetUpdate) {

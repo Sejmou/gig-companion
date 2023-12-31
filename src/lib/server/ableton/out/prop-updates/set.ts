@@ -1,6 +1,6 @@
-import type { SetUpdate } from '$lib/ableton/types/prop-updates';
+import type { SetUpdate } from '$lib/ableton/types/prop-updates/set';
 import type { Ableton } from 'ableton-js';
-import type { SetState } from '$lib/ableton/types';
+import type { SetState } from '$lib/ableton/types/state/set';
 
 export async function getCurrentSetState(ableton: Ableton): Promise<SetState> {
 	const playing = await ableton.song.get('is_playing');
@@ -10,9 +10,7 @@ export async function getCurrentSetState(ableton: Ableton): Promise<SetState> {
 		playing,
 		bpm,
 		time,
-		connected: true,
-		// TODO: implement song extraction
-		songs: []
+		connected: true
 	};
 }
 
