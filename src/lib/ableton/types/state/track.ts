@@ -10,7 +10,7 @@ export type MidiOrAudioTrack = TrackBase & {
 
 export type GroupTrack = TrackBase & {
 	type: 'group';
-	tracks: Track[];
+	childIds: string[];
 };
 
 export type TrackBase = {

@@ -4,31 +4,40 @@ import type { PropUpdate } from '$lib/ableton/types/prop-updates';
 import type { SetUpdate } from '$lib/ableton/types/prop-updates/set';
 import type { WebSocket } from 'ws';
 import { broadcastChange } from '..';
+import { getTrackHierarchy } from './track';
 
 /**
  * Broadcasts the current state of Live to all connected clients. Intended to be called when the Ableton connection is (re-)established.
  */
 export async function broadcastCurrentLiveState(ableton: Ableton) {
-	const setState = await getCurrentSetState(ableton);
-	const update: SetUpdate = {
-		type: 'propUpdate',
-		scope: 'set',
-		update: setState
-	};
-	broadcastUpdateMessage(update);
+	const updates = await createUpdateMessages(ableton);
+	for (const update of updates) {
+		broadcastUpdateMessage(update);
+	}
 }
 
 /**
  * Sends the current state of Live to a single client. Intended to be called when a new client connects.
  */
 export async function sendCurrentLiveState(ws: WebSocket, ableton: Ableton) {
+	// TODO: debug, remove later
+	const tracks = await getTrackHierarchy(ableton);
+	console.log(tracks);
+
+	const updates = await createUpdateMessages(ableton);
+	for (const update of updates) {
+		ws.send(JSON.stringify(update));
+	}
+}
+
+async function createUpdateMessages(ableton: Ableton) {
 	const setState = await getCurrentSetState(ableton);
-	const update: SetUpdate = {
+	const setUpdate: SetUpdate = {
 		type: 'propUpdate',
 		scope: 'set',
 		update: setState
 	};
-	ws.send(JSON.stringify(update));
+	return [setUpdate];
 }
 
 /**

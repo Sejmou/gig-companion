@@ -1,6 +1,6 @@
 import type { TrackUpdate } from '$lib/ableton/types/prop-updates/track';
 import type { Ableton } from 'ableton-js';
-import { numberToMonitoringState } from '../../out/prop-updates/track';
+import { numberToMonitoringState } from '../../out/state/track';
 
 export async function updateTrackProp(ableton: Ableton, request: TrackUpdate) {
 	const { trackId, update: trackUpdate } = request;

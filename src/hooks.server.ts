@@ -10,7 +10,7 @@ import {
 	sendCurrentLiveState,
 	sendLiveOffline,
 	setupLiveUpdateListeners
-} from '$lib/server/ableton/out/prop-updates';
+} from '$lib/server/ableton/out/state';
 import type { WebSocket, WebSocketServer } from 'ws';
 import { processClientMessage } from '$lib/server/ableton/in';
 import { sendServerEvent } from '$lib/server/ableton/out/events';
