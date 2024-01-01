@@ -1,4 +1,4 @@
-import type { ActionsMap, ClientActionBase } from '../message-base/client';
+import type { ActionsMap, ClientActionBase } from '../../message-base/client';
 
 type StartPlayback = {
 	name: 'startPlayback';

@@ -4,7 +4,7 @@
 export type ClientEvent = ClientReady;
 
 /**
- * Sent by the client to the server when the client is ready to receive messages from the client.
+ * Sent by the client to the server when the client is ready to receive messages from the server.
  */
 export type ClientReady = {
 	type: 'clientEvent';

@@ -1,4 +1,5 @@
-import type { MidiOrAudioTrack } from './track';
+// TODO: implement actual logic
+import type { MidiOrAudioTrack } from '../track';
 
 export type Song = {
 	name: string;

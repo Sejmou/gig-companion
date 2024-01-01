@@ -1,5 +1,3 @@
-import type { StateUpdateBase } from '$lib/ableton/types/message-base/server';
-
 /**
  * The current 'global' state of the Ableton Live set.
  */
@@ -22,10 +20,3 @@ export type SetState = {
 	 */
 	time: number;
 };
-
-export type SetScope = {
-	scope: 'set';
-};
-
-export type SetStateUpdateMessage = SetScope & SetStateUpdate;
-type SetStateUpdate = StateUpdateBase & { update: Partial<SetState> };

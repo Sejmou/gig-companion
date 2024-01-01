@@ -7,7 +7,7 @@ import { ServiceMonitor } from '$lib/utils';
 import type { WebSocket, WebSocketServer } from 'ws';
 import { processClientMessage } from '$lib/server/ableton/in';
 import { sendServerEvent } from '$lib/server/ableton/events';
-import { isClientEvent } from '$lib/ableton/types/websocket-api/client/events';
+import { isClientEvent } from '$lib/ableton/types/client-events';
 import { SetStateManager } from '$lib/server/ableton/state-updates/set';
 import { broadcastChange } from '$lib/server/ableton/out';
 import type { SetUpdate } from '$lib/ableton/types/websocket-api/server/state-updates/set';

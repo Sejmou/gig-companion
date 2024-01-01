@@ -1,7 +1,7 @@
 import { isStateUpdate } from '$lib/ableton/types/websocket-api/server/state-updates';
 import { handleSetUpdate } from '$lib/ableton/client/stores/set';
-import { isServerEvent } from './ableton/types/websocket-api/server/events';
-import type { ClientReady } from './ableton/types/websocket-api/client/events';
+import { isServerEvent } from './ableton/types/server-events';
+import type { ClientReady } from './ableton/types/client-events';
 import { serverReady } from '$lib/ableton/client/stores/server-state';
 import { get } from 'svelte/store';
 
