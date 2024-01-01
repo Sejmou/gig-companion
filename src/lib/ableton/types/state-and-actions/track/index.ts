@@ -1,24 +1,7 @@
-import type { Device } from 'ableton-js/ns/device';
+import type { TrackActionsMap } from './actions';
+import type { Track } from './state';
 
-export type Track = MidiOrAudioTrack | GroupTrack;
-
-export type MidiOrAudioTrack = TrackBase & {
-	type: 'midiOrAudio';
-	armed: boolean;
-	monitoringState: 'in' | 'auto' | 'off';
-};
-
-export type GroupTrack = TrackBase & {
-	type: 'group';
-	childIds: string[];
-};
-
-export type TrackBase = {
-	id: string;
-	name: string;
-	devices: Device[];
-	parentId?: string;
-	muted: boolean;
-	// TODO: investigate why this is not a boolean prop
-	soloed: number;
+export type BasicTrackStateAndActions = {
+	state: Track;
+	actions: TrackActionsMap;
 };
