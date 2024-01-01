@@ -1,9 +1,8 @@
-/**
- * The current state of Ableton Live's set.
- * This includes information about the current song, the current playback state, the current time, etc.
- * This is the only state that is not scoped to a specific track.
- */
+import type { StateUpdateBase } from '$lib/ableton/types/message-base/server';
 
+/**
+ * The current 'global' state of the Ableton Live set.
+ */
 export type SetState = {
 	/**
 	 * Whether the connection to Ableton Live is established.
@@ -23,3 +22,10 @@ export type SetState = {
 	 */
 	time: number;
 };
+
+export type SetScope = {
+	scope: 'set';
+};
+
+export type SetStateUpdateMessage = SetScope & SetStateUpdate;
+type SetStateUpdate = StateUpdateBase & { update: Partial<SetState> };

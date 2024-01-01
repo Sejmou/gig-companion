@@ -1,6 +1,6 @@
 import type { Ableton } from 'ableton-js';
 
-export abstract class AbletonStateManager<T> {
+export abstract class AbletonStateManager<T extends StateAndActions> {
 	constructor(
 		readonly ableton: Ableton,
 		updateHandler: (update: Partial<T>) => void
