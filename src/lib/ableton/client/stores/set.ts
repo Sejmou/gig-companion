@@ -1,5 +1,5 @@
 import { derived, get, writable } from 'svelte/store';
-import type { SetUpdate } from '$lib/ableton/types/prop-updates/set';
+import type { SetUpdate } from '$lib/ableton/types/state-updates/set';
 import { sendAction } from '../actions';
 
 const playingInternal = writable(false);
@@ -7,7 +7,7 @@ const timeInternal = writable(0);
 const bpmInternal = writable(0);
 const connectedInternal = writable(false);
 
-export function handleSetPropUpdate(data: SetUpdate) {
+export function handleSetUpdate(data: SetUpdate) {
 	const { update } = data;
 	const { playing, time, bpm, connected } = update;
 	if (playing !== undefined) {

@@ -1,7 +1,7 @@
 import type { MidiOrAudioTrack, GroupTrack } from '../state/track';
 
 export type TrackUpdate = {
-	type: 'propUpdate';
+	type: 'stateUpdate';
 	scope: 'track';
 	trackType: 'midiOrAudio' | 'group';
 	trackId: string;

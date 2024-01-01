@@ -1,5 +1,5 @@
-import { isPropUpdate } from '$lib/ableton/types/prop-updates';
-import { handleSetPropUpdate } from '$lib/ableton/client/stores/set';
+import { isStateUpdate } from '$lib/ableton/types/state-updates';
+import { handleSetUpdate } from '$lib/ableton/client/stores/set';
 import { isServerEvent } from './ableton/types/server-events';
 import type { ClientReady } from './ableton/types/client-events';
 import { serverReady } from '$lib/ableton/client/stores/server-state';
@@ -40,9 +40,9 @@ function handleMessageReceived(event: MessageEvent) {
 		if (msg.name === 'ready') {
 			serverReady.set(true);
 		}
-	} else if (isPropUpdate(msg)) {
+	} else if (isStateUpdate(msg)) {
 		if (msg.scope == 'set') {
-			handleSetPropUpdate(msg);
+			handleSetUpdate(msg);
 		}
 	} else console.warn('Unknown message received', msg);
 }

@@ -1,7 +1,7 @@
 import type { Ableton } from 'ableton-js';
 import { getCurrentSetState, setupSetUpdateListeners } from './set';
-import type { PropUpdate } from '$lib/ableton/types/prop-updates';
-import type { SetUpdate } from '$lib/ableton/types/prop-updates/set';
+import type { StateUpdate } from '$lib/ableton/types/state-updates';
+import type { SetUpdate } from '$lib/ableton/types/state-updates/set';
 import type { WebSocket } from 'ws';
 import { broadcastChange } from '..';
 import { getTrackHierarchy } from './track';
@@ -33,7 +33,7 @@ export async function sendCurrentLiveState(ws: WebSocket, ableton: Ableton) {
 async function createUpdateMessages(ableton: Ableton) {
 	const setState = await getCurrentSetState(ableton);
 	const setUpdate: SetUpdate = {
-		type: 'propUpdate',
+		type: 'stateUpdate',
 		scope: 'set',
 		update: setState
 	};
@@ -45,7 +45,7 @@ async function createUpdateMessages(ableton: Ableton) {
  */
 export function sendLiveOffline(ws: WebSocket) {
 	const update: SetUpdate = {
-		type: 'propUpdate',
+		type: 'stateUpdate',
 		scope: 'set',
 		update: {
 			connected: false
@@ -59,7 +59,7 @@ export function sendLiveOffline(ws: WebSocket) {
  */
 export async function broadcastLiveOffline() {
 	const update: SetUpdate = {
-		type: 'propUpdate',
+		type: 'stateUpdate',
 		scope: 'set',
 		update: {
 			connected: false
@@ -71,7 +71,7 @@ export async function broadcastLiveOffline() {
 export async function setupLiveUpdateListeners(ableton: Ableton) {
 	const setUpdateHandler: (update: SetUpdate['update']) => Promise<void> = async (update) => {
 		const updateMessage: SetUpdate = {
-			type: 'propUpdate',
+			type: 'stateUpdate',
 			scope: 'set',
 			update
 		};
@@ -85,6 +85,6 @@ export async function setupLiveUpdateListeners(ableton: Ableton) {
  * Broadcasts a message containing information about an update to Live's state to all connected clients.
  * This allows clients to stay in sync with Live's state.
  */
-function broadcastUpdateMessage(msg: PropUpdate) {
+function broadcastUpdateMessage(msg: StateUpdate) {
 	broadcastChange(msg);
 }

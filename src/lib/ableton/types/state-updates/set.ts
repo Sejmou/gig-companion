@@ -1,7 +1,7 @@
 import type { SetState } from '../state/set';
 
 export type SetUpdate = {
-	type: 'propUpdate';
+	type: 'stateUpdate';
 	scope: 'set';
 	update: Partial<SetState>;
 };

@@ -1,4 +1,4 @@
-import type { TrackUpdate } from '$lib/ableton/types/prop-updates/track';
+import type { TrackUpdate } from '$lib/ableton/types/state-updates/track';
 import type { Ableton } from 'ableton-js';
 import { numberToMonitoringState } from '../../out/state/track';
 

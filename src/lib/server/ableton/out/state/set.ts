@@ -1,4 +1,4 @@
-import type { SetUpdate } from '$lib/ableton/types/prop-updates/set';
+import type { SetUpdate } from '$lib/ableton/types/state-updates/set';
 import type { Ableton } from 'ableton-js';
 import type { SetState } from '$lib/ableton/types/state/set';
 
