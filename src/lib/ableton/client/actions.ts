@@ -1,5 +1,5 @@
 import { ws } from '$lib/websocket-client';
-import type { ClientAction } from '$lib/ableton/types/client-actions';
+import type { ClientAction } from '$lib/ableton/types/websocket-api/client/actions';
 
 export function sendAction(action: Omit<ClientAction, 'type'>) {
 	const type = 'action';

@@ -4,17 +4,13 @@
 import { getWebSocketServer } from '$lib/server/websocket-server';
 import { Ableton } from 'ableton-js';
 import { ServiceMonitor } from '$lib/utils';
-import {
-	broadcastCurrentLiveState,
-	broadcastLiveOffline,
-	sendCurrentLiveState,
-	sendLiveOffline,
-	setupLiveUpdateListeners
-} from '$lib/server/ableton/out/state';
 import type { WebSocket, WebSocketServer } from 'ws';
 import { processClientMessage } from '$lib/server/ableton/in';
-import { sendServerEvent } from '$lib/server/ableton/out/events';
-import { isClientEvent } from '$lib/ableton/types/client-events';
+import { sendServerEvent } from '$lib/server/ableton/events';
+import { isClientEvent } from '$lib/ableton/types/websocket-api/client/events';
+import { SetStateManager } from '$lib/server/ableton/state-updates/set';
+import { broadcastChange } from '$lib/server/ableton/out';
+import type { SetUpdate } from '$lib/ableton/types/websocket-api/server/state-updates/set';
 
 async function abletonSetup() {
 	const wss = getWebSocketServer();
@@ -36,10 +32,25 @@ function createConnectionMonitor(ableton: Ableton) {
 		onServiceOffline: onAbletonDisconnected
 	});
 
-	function onAbletonConnected() {
+	async function onAbletonConnected() {
 		console.log('[Monitor] Ableton Live connected');
-		broadcastCurrentLiveState(ableton);
-		setupLiveUpdateListeners(ableton);
+		const setStateManager = new SetStateManager(ableton, (update) => {
+			const change: SetUpdate = {
+				type: 'stateUpdate',
+				scope: 'set',
+				update
+			};
+			broadcastChange(change);
+		});
+		const currentSetState = await setStateManager.getStateSnapshot();
+		if (currentSetState) {
+			const change: SetUpdate = {
+				type: 'stateUpdate',
+				scope: 'set',
+				update: currentSetState
+			};
+			broadcastChange(change);
+		}
 	}
 
 	async function onAbletonDisconnected() {
@@ -51,6 +62,34 @@ function createConnectionMonitor(ableton: Ableton) {
 }
 
 /**
+ * Sends a message to a single client that Live is not running. Intended to be called when a new client connects while Live is offline.
+ */
+function sendLiveOffline(ws: WebSocket) {
+	const update: SetUpdate = {
+		type: 'stateUpdate',
+		scope: 'set',
+		update: {
+			connected: false
+		}
+	};
+	ws.send(JSON.stringify(update));
+}
+
+/**
+ * Broadcasts a message to all connected clients that Live is not running. Intended to be called when the Ableton connection is lost.
+ */
+function broadcastLiveOffline() {
+	const update: SetUpdate = {
+		type: 'stateUpdate',
+		scope: 'set',
+		update: {
+			connected: false
+		}
+	};
+	broadcastUpdateMessage(update);
+}
+
+/**
  * Configures the WebSocket server to communicate with Ableton Live.
  *
  * This function should be called after the websocket server starts up.
@@ -58,7 +97,6 @@ function createConnectionMonitor(ableton: Ableton) {
 export function configureWSSWithAbleton(wss: WebSocketServer, ableton: Ableton) {
 	console.log('configuring WebSocket server for Ableton Live communication');
 	console.log('setting up live update listeners');
-	setupLiveUpdateListeners(ableton);
 	wss.addListener('connection', handleAbletonClientCommunication.bind(null, ableton));
 	console.log('WebSocket server configured');
 }

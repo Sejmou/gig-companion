@@ -1,4 +1,4 @@
-import { isChange } from '..';
+import { isClientMessage } from '..';
 import type { SetAction } from './set';
 
 export type ClientAction = SetAction;
@@ -7,7 +7,7 @@ export const actionScopes: ActionScope[] = ['set'] as const;
 
 export const isAction = (unknown: unknown): unknown is ClientAction => {
 	return (
-		isChange(unknown) &&
+		isClientMessage(unknown) &&
 		unknown.type == 'action' &&
 		'scope' in unknown &&
 		actionScopes.includes(unknown.scope)

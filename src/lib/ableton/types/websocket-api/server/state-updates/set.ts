@@ -1,4 +1,4 @@
-import type { SetState } from '../state/set';
+import type { SetState } from '$lib/ableton/types/state/set';
 
 export type SetUpdate = {
 	type: 'stateUpdate';

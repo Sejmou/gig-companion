@@ -1,4 +1,4 @@
-import type { MidiOrAudioTrack, GroupTrack } from '../state/track';
+import type { MidiOrAudioTrack, GroupTrack } from '../../../state/track';
 
 export type TrackUpdate = {
 	type: 'stateUpdate';

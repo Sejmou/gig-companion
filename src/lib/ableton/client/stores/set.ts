@@ -1,5 +1,5 @@
 import { derived, get, writable } from 'svelte/store';
-import type { SetUpdate } from '$lib/ableton/types/state-updates/set';
+import type { SetUpdate } from '$lib/ableton/types/websocket-api/server/state-updates/set';
 import { sendAction } from '../actions';
 
 const playingInternal = writable(false);

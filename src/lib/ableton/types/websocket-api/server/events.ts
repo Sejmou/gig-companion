@@ -1,4 +1,4 @@
-import { isChange } from '.';
+import { isServerMessage } from '.';
 
 /**
  * 'Serverside Events' that are not directly related to the Ableton Live Set.
@@ -14,5 +14,5 @@ export type ServerReady = {
 };
 
 export const isServerEvent = (unknown: unknown): unknown is ServerEvent => {
-	return isChange(unknown) && unknown.type == 'serverEvent';
+	return isServerMessage(unknown) && unknown.type == 'serverEvent';
 };
