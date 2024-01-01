@@ -60,5 +60,5 @@ type SetMonitoringState = TrackActionBase & {
 	monitoringState: 'in' | 'auto' | 'off';
 };
 
-type TrackAction = Mute | Unmute | Solo | Unsolo | Arm | Disarm | SetMonitoringState;
+export type TrackAction = Mute | Unmute | Solo | Unsolo | Arm | Disarm | SetMonitoringState;
 export type TrackActionsMap = ActionsMap<TrackAction>;

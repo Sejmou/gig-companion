@@ -5,12 +5,9 @@ import { getWebSocketServer } from '$lib/server/websocket-server';
 import { Ableton } from 'ableton-js';
 import { ServiceMonitor } from '$lib/utils';
 import type { WebSocket, WebSocketServer } from 'ws';
-import { processClientMessage } from '$lib/server/ableton/in';
-import { sendServerEvent } from '$lib/server/ableton/events';
 import { isClientEvent } from '$lib/ableton/types/client-events';
-import { SetStateManager } from '$lib/server/ableton/state-updates/set';
-import { broadcastChange } from '$lib/server/ableton/out';
-import type { SetUpdate } from '$lib/ableton/types/websocket-api/server/state-updates/set';
+import { SetStateManager } from '$lib/server/ableton/state-management/set';
+import { broadcast } from '$lib/server/ableton/ws-utils';
 
 async function abletonSetup() {
 	const wss = getWebSocketServer();
@@ -34,14 +31,17 @@ function createConnectionMonitor(ableton: Ableton) {
 
 	async function onAbletonConnected() {
 		console.log('[Monitor] Ableton Live connected');
-		const setStateManager = new SetStateManager(ableton, (update) => {
-			const change: SetUpdate = {
-				type: 'stateUpdate',
-				scope: 'set',
-				update
-			};
-			broadcastChange(change);
-		});
+		const setStateManager = new SetStateManager(
+			ableton,
+			(update) => {
+				broadcast(update);
+			},
+			{
+				startPlayback: async () => await ableton.song.startPlaying(),
+				stopPlayback: async () => await ableton.song.stopPlaying(),
+				continuePlayback: async () => await ableton.song.continuePlaying()
+			}
+		);
 		const currentSetState = await setStateManager.getStateSnapshot();
 		if (currentSetState) {
 			const change: SetUpdate = {
