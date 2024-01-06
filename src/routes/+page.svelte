@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { playing, time, bpm, connected } from '$lib/ableton/client/stores/set';
+	import { playing, time, bpm, connected } from '$lib/client/stores/ableton/set';
 	function formatTime(time: number) {
 		const minutes = Math.floor(time / 60);
 		const seconds = Math.floor(time % 60);

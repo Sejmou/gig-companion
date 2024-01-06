@@ -1,14 +1,13 @@
 import { derived, get, writable } from 'svelte/store';
-import type { SetUpdate } from '$lib/ableton/types/websocket-api/server/state-updates/set';
-import { sendAction } from '../actions';
+import { ws } from '$lib/client/stores/websocket-connection';
+import type { ScopeAction, ScopeActionMessage, ScopeStateUpdate } from '$lib/types/ableton';
 
 const playingInternal = writable(false);
 const timeInternal = writable(0);
 const bpmInternal = writable(0);
 const connectedInternal = writable(false);
 
-export function handleSetUpdate(data: SetUpdate) {
-	const { update } = data;
+export function handleSetUpdate(update: ScopeStateUpdate<'set'>) {
 	const { playing, time, bpm, connected } = update;
 	if (playing !== undefined) {
 		playingInternal.set(playing);
@@ -24,20 +23,29 @@ export function handleSetUpdate(data: SetUpdate) {
 	}
 }
 
+function sendSetAction(action: ScopeAction<'set'>) {
+	const msg: ScopeActionMessage<'set'> = {
+		type: 'action',
+		scope: 'set',
+		action
+	};
+	ws.send(msg);
+}
+
 function createPlayingStore() {
 	const { subscribe, update } = playingInternal;
 
 	const play = () => {
 		const playmode = get(playMode);
 		if (playmode === 'continue') {
-			sendAction({ scope: 'set', name: 'continuePlayback' });
+			sendSetAction({ name: 'continuePlayback' });
 		} else {
-			sendAction({ scope: 'set', name: 'startPlayback' });
+			sendSetAction({ name: 'startPlayback' });
 		}
 	};
 
 	const stop = () => {
-		sendAction({ scope: 'set', name: 'stopPlayback' });
+		sendSetAction({ name: 'stopPlayback' });
 	};
 
 	function customSet(newValue: boolean) {

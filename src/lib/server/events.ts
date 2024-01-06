@@ -1,4 +1,4 @@
-import type { ServerEvent } from '$lib/ableton/types/server-events';
+import type { ServerEvent } from '$lib/types/server-events';
 import type { WebSocket } from 'ws';
 import { broadcast, send } from './ws-client-communication';
 

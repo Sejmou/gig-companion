@@ -1,5 +1,3 @@
-import type { ActionsMap } from '../../helpers';
-
 type StartPlayback = {
 	name: 'startPlayback';
 };
@@ -13,4 +11,3 @@ type StopPlayback = {
 };
 
 export type SetAction = StartPlayback | ContinuePlayback | StopPlayback;
-export type SetActionsMap = ActionsMap<SetAction>;

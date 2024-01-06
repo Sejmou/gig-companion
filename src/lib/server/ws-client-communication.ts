@@ -1,6 +1,6 @@
-import type { ClientEvent } from '$lib/ableton/types/client-events';
-import type { ServerEvent } from '$lib/ableton/types/server-events';
-import type { ClientActionMessage, StateUpdateMessage } from '$lib/ableton/types/state-and-actions';
+import type { ClientEvent } from '$lib/types/client-events';
+import type { ServerEvent } from '$lib/types/server-events';
+import type { ClientActionMessage, StateUpdateMessage } from '$lib/types/ableton';
 import { getWebSocketServer } from '$lib/server/websocket-server';
 import type { WebSocket } from 'ws';
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { ws, resetWebsocketConnection } from '$lib/websocket-client';
+	import { ws } from '$lib/client/stores/websocket-connection';
 </script>
 
 <div class="navbar bg-base-100">
@@ -42,7 +42,7 @@
 				</li>
 				<!-- Add more subpages here as needed (make sure to add in other list as well!) -->
 				<!-- On mobile, show the reset connection button here -->
-				<li on:click={resetWebsocketConnection}><a>Reset connection</a></li>
+				<li on:click={ws.reset}><a>Reset connection</a></li>
 			</ul>
 		</div>
 		<a href="/" class="btn btn-ghost normal-case text-xl">Gig Companion</a>
@@ -66,7 +66,7 @@
 			<!-- Add more subpages here as needed (make sure to add in other list as well!) -->
 		</ul>
 		<div class="hidden lg:flex absolute right-2">
-			<button class="btn btn-warning" on:click={resetWebsocketConnection}>Reset connection</button>
+			<button class="btn btn-warning" on:click={ws.reset}>Reset connection</button>
 		</div>
 	</div>
 </div>

@@ -1,9 +1,8 @@
-import { isStateUpdate } from '$lib/ableton/types/websocket-api/server/state-updates';
-import { handleSetUpdate } from '$lib/ableton/client/stores/set';
-import { isServerEvent } from './ableton/types/server-events';
-import type { ClientReady } from './ableton/types/client-events';
-import { serverReady } from '$lib/ableton/client/stores/server-state';
-import { get } from 'svelte/store';
+import { isStateUpdateMessage, type ClientActionMessage } from '$lib/types/ableton';
+import { handleSetUpdate } from '$lib/client/stores/ableton/set';
+import { isServerEvent } from '../../types/server-events';
+import type { ClientEvent, ClientReady } from '../../types/client-events';
+import { derived, get, writable } from 'svelte/store';
 
 function handleConnectionOpen(event: Event) {
 	console.log('WebSocket connection opened', event);
@@ -14,7 +13,7 @@ function handleConnectionOpen(event: Event) {
 		type: 'clientEvent',
 		name: 'ready'
 	};
-	ws.send(JSON.stringify(readyMsg));
+	con.send(JSON.stringify(readyMsg));
 	console.log('Sent ready message to server');
 	setTimeout(() => {
 		const receivedReady = get(serverReady);
@@ -38,11 +37,12 @@ function handleMessageReceived(event: MessageEvent) {
 	console.log('Received message from server', msg);
 	if (isServerEvent(msg)) {
 		if (msg.name === 'ready') {
-			serverReady.set(true);
+			_serverReady.set(true);
 		}
-	} else if (isStateUpdate(msg)) {
-		if (msg.scope == 'set') {
-			handleSetUpdate(msg);
+	} else if (isStateUpdateMessage(msg)) {
+		const { scope, update } = msg;
+		if (scope == 'set') {
+			handleSetUpdate(update);
 		}
 	} else console.warn('Unknown message received', msg);
 }
@@ -62,13 +62,23 @@ function createWebSocketConnection() {
 
 export function resetWebsocketConnection() {
 	console.log('Resetting WebSocket connection');
-	ws.removeEventListener('open', handleConnectionOpen);
-	ws.removeEventListener('close', handleConnectionClose);
-	ws.removeEventListener('error', handleConnectionError);
-	ws.removeEventListener('message', handleMessageReceived);
-	ws.close();
-	ws = createWebSocketConnection();
-	serverReady.set(false);
+	con.removeEventListener('open', handleConnectionOpen);
+	con.removeEventListener('close', handleConnectionClose);
+	con.removeEventListener('error', handleConnectionError);
+	con.removeEventListener('message', handleMessageReceived);
+	con.close();
+	con = createWebSocketConnection();
+	_serverReady.set(false);
 }
 
-export let ws = createWebSocketConnection();
+const _serverReady = writable(false);
+const serverReady = derived(_serverReady, (val) => val);
+let con = createWebSocketConnection();
+
+export const ws = {
+	send: (msg: ClientActionMessage | ClientEvent) => {
+		con.send(JSON.stringify(msg));
+	},
+	reset: resetWebsocketConnection,
+	serverReady
+};

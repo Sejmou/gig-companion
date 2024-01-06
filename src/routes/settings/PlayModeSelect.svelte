@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { playMode, playModes } from '$lib/ableton/client/stores/set';
+	import { playMode, playModes } from '$lib/client/stores/ableton/set';
 
 	function handleSelect(event: any) {
 		playMode.set(event.target.value);

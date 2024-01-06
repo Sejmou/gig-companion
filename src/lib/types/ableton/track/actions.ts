@@ -1,5 +1,3 @@
-import type { ActionsMap } from '../../helpers';
-
 type TrackActionBase = {
 	id: string;
 };
@@ -61,4 +59,3 @@ type SetMonitoringState = TrackActionBase & {
 };
 
 export type TrackAction = Mute | Unmute | Solo | Unsolo | Arm | Disarm | SetMonitoringState;
-export type TrackActionsMap = ActionsMap<TrackAction>;
