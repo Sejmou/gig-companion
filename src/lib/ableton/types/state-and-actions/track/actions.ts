@@ -1,7 +1,7 @@
 import type { ActionsMap } from '../../helpers';
 
 type TrackActionBase = {
-	trackId: number;
+	id: string;
 };
 
 /**

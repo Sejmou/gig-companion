@@ -2,6 +2,7 @@ import type { ClientEvent } from '$lib/ableton/types/client-events';
 import type { ServerEvent } from '$lib/ableton/types/server-events';
 import type { ClientActionMessage, StateUpdateMessage } from '$lib/ableton/types/state-and-actions';
 import { getWebSocketServer } from '$lib/server/websocket-server';
+import type { WebSocket } from 'ws';
 
 /**
  * Broadcasts a message to all connected clients
@@ -22,6 +23,9 @@ export function send(client: WebSocket, msg: StateUpdateMessage | ServerEvent) {
 	client.send(msgString);
 }
 
+/**
+ * Parses an incoming message sent by a client
+ */
 export function parseClientMessage(msg: string): ClientActionMessage | ClientEvent | null {
 	try {
 		const parsed = JSON.parse(msg);

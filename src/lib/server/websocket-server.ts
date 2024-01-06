@@ -1,6 +1,7 @@
-// this file is run for the first time on server start, BEFORE SvelteKit really 'starts up'
-// it configures the WebSocket Server that is used for communication between the clients and the (SvelteKit) server
-// the actual server/client communication code related to Ableton is located in src/lib/server/ableton
+// this file is imported for the first time on server start, BEFORE SvelteKit really 'starts up'
+// on first import, a new WebSocketServer is created, hooked up w/ the HTTP server
+// additionally, a reference to the WebSocket Server is stored in the globalThis object
+// this global reference is also used via the getWebSocketServer function by any other server-side code that needs to communicate w/ clients
 import { parse } from 'url';
 import { WebSocketServer } from 'ws';
 import type { IncomingMessage } from 'http';

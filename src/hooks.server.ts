@@ -6,8 +6,8 @@ import { Ableton } from 'ableton-js';
 import { ServiceMonitor } from '$lib/utils';
 import type { WebSocket, WebSocketServer } from 'ws';
 import { isClientEvent } from '$lib/ableton/types/client-events';
-import { SetStateManager } from '$lib/server/ableton/state-management/set';
-import { broadcast } from '$lib/server/ableton/ws-utils';
+import { SetStateManager } from '$lib/server/ableton/set';
+import { broadcast } from '$lib/server/ws-client-communication';
 
 async function abletonSetup() {
 	const wss = getWebSocketServer();

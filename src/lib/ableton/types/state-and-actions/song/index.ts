@@ -1,10 +1,10 @@
 // TODO: implement actual logic
-import type { MidiOrAudioTrack } from '../track/state';
+import type { ObservableMidiOrAudioTrackState } from '../track/state';
 
 export type Song = {
 	name: string;
 	sections: Section[];
-	tracks: MidiOrAudioTrack[];
+	tracks: ObservableMidiOrAudioTrackState[];
 };
 
 type Section = {

@@ -1,7 +1,7 @@
 import type { TrackActionsMap } from './actions';
-import type { Track } from './state';
+import type { ObservableTrackState } from './state';
 
 export type BasicTrackStateAndActions = {
-	state: Track;
+	state: ObservableTrackState;
 	actions: TrackActionsMap;
 };
