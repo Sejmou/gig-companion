@@ -1,6 +1,19 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import StatusIndicator from '$lib/client/components/StatusIndicator.svelte';
+	import { connected as abletonConnected } from '$lib/client/stores/ableton/set';
 	import { ws } from '$lib/client/stores/websocket-connection';
+	import { derived } from 'svelte/store';
+	const { serverReady, connectedToServer } = ws;
+	const connected = derived(
+		[abletonConnected, connectedToServer, serverReady],
+		([$abletonConnected, $connectedToServer, $serverReady]) =>
+			$abletonConnected && $connectedToServer && $serverReady
+	);
+	let connectionManagementDialog: HTMLDialogElement;
+	const openDialog = () => {
+		connectionManagementDialog.showModal();
+	};
 </script>
 
 <div class="navbar bg-base-100">
@@ -41,8 +54,13 @@
 					>
 				</li>
 				<!-- Add more subpages here as needed (make sure to add in other list as well!) -->
-				<!-- On mobile, show the reset connection button here -->
-				<li on:click={ws.reset}><a>Reset connection</a></li>
+				<!-- On mobile, show the connection state here -->
+				<li>
+					<div class="flex items-center" on:click={openDialog}>
+						<span class="mr-auto">Connection </span>
+						<StatusIndicator connected={$connected} />
+					</div>
+				</li>
 			</ul>
 		</div>
 		<a href="/" class="btn btn-ghost normal-case text-xl">Gig Companion</a>
@@ -66,7 +84,35 @@
 			<!-- Add more subpages here as needed (make sure to add in other list as well!) -->
 		</ul>
 		<div class="hidden lg:flex absolute right-2">
-			<button class="btn btn-warning" on:click={ws.reset}>Reset connection</button>
+			<div class="btn btn-neutral flex gap-2 items-center" on:click={openDialog}>
+				<span>Connection Status</span>
+				<StatusIndicator connected={$connected} />
+			</div>
 		</div>
 	</div>
 </div>
+
+<dialog bind:this={connectionManagementDialog} class="modal">
+	<div class="modal-box">
+		<form method="dialog">
+			<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+		</form>
+		<h3 class="mb-2">Connection</h3>
+		<div class="flex flex-col gap-4">
+			<div class="flex flex-col gap-2 w-full">
+				<div class="flex w-full justify-between">
+					<span class="text-sm">Ableton Live</span>
+					<StatusIndicator connected={$abletonConnected} />
+				</div>
+				<div class="flex w-full justify-between">
+					<span class="text-sm">WebSocket Server</span>
+					<StatusIndicator connected={$connectedToServer && $serverReady} />
+				</div>
+			</div>
+			<button class="btn btn-warning" on:click={ws.reset}>Reset connection</button>
+		</div>
+	</div>
+	<form method="dialog" class="modal-backdrop">
+		<button>close</button>
+	</form>
+</dialog>

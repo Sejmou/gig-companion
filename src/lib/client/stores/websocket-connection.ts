@@ -7,6 +7,7 @@ import { derived, get, writable } from 'svelte/store';
 
 function handleConnectionOpen(event: Event) {
 	console.log('WebSocket connection opened', event);
+	_connectedToServer.set(true);
 
 	// tell the server that we're ready to communicate with the server
 	// we expect to later receive a 'ready' event from the server in response
@@ -27,6 +28,8 @@ function handleConnectionOpen(event: Event) {
 
 function handleConnectionClose(event: CloseEvent) {
 	console.log('WebSocket connection closed', event);
+	_connectedToServer.set(false);
+	_serverReady.set(false);
 }
 
 function handleConnectionError(event: Event) {
@@ -78,7 +81,10 @@ export function resetWebsocketConnection() {
 }
 
 const _serverReady = writable(false);
+const _connectedToServer = writable(false);
 const serverReady = derived(_serverReady, (val) => val);
+const connectedToServer = derived(_connectedToServer, (val) => val);
+
 let con = createWebSocketConnection();
 
 export const ws = {
@@ -86,5 +92,6 @@ export const ws = {
 		con.send(JSON.stringify(msg));
 	},
 	reset: resetWebsocketConnection,
-	serverReady
+	serverReady,
+	connectedToServer
 };

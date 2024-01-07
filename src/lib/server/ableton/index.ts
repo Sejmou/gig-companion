@@ -44,6 +44,9 @@ export class AbletonSyncManager implements ScopeUpdateObserver<StateUpdateScope>
 	}
 
 	private setupConnectionListener() {
+		console.log('setting up Live connection listener');
+		// this doesn't relly seem to work atm
+		// TODO: consider reaching out to maintainer of ableton-js to fix
 		this.ableton.addListener('connected', async () => {
 			if (this.ableton.isConnected()) {
 				console.log('Ableton Live connected');
@@ -56,6 +59,7 @@ export class AbletonSyncManager implements ScopeUpdateObserver<StateUpdateScope>
 				broadcast({ type: 'stateUpdate', scope: 'set', update: { connected: false } });
 			}
 		});
+		console.log('Live connection listener has been set up');
 	}
 
 	async sendCurrentState(client: WebSocket) {
