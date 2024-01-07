@@ -3,31 +3,31 @@ import type { SetState } from './set/state';
 import type { TrackAction } from './track/actions';
 import type { ObservableTrackState, Track } from './track/state';
 
-type Scope = 'set' | 'track' | 'tracks';
+export type Scope = 'set' | 'track' | 'tracks';
 
 // =====STATE=====
-type StateUpdateScopes = {
+type StateSnapshotScopes = {
 	set: SetState;
 	track: ObservableTrackState;
 	tracks: Track[];
 };
-export type ScopeStateUpdate<T extends Scope> = Partial<StateUpdateScopes[T]>;
-type StateUpdateMessages = {
-	[T in Scope]: ScopeStateUpdateMessage<T>;
+export type ScopeStateSnapshot<T extends Scope> = Partial<StateSnapshotScopes[T]>;
+type StateSnapshotMessages = {
+	[T in Scope]: ScopeStateSnapshotMessage<T>;
 };
-export type ScopeStateUpdateMessage<T extends Scope> = {
-	type: 'stateUpdate';
+export type ScopeStateSnapshotMessage<T extends Scope> = {
+	type: 'stateSnapshot';
 	scope: T;
-	update: Partial<StateUpdateScopes[T]>;
+	snapshot: Partial<StateSnapshotScopes[T]>;
 };
-export type StateUpdateMessage = StateUpdateMessages[Scope];
+export type StateSnapshotMessage = StateSnapshotMessages[Scope];
 
 // this type guard is surely NOT 100% safe, but the server shouldn't send invalid messages anyway
-export const isStateUpdateMessage = (message: unknown): message is StateUpdateMessage =>
+export const isStateSnapshotMessage = (message: unknown): message is StateSnapshotMessage =>
 	typeof message === 'object' &&
 	message !== null &&
 	'type' in message &&
-	message['type'] === 'stateUpdate';
+	message['type'] === 'stateSnapshot';
 
 // =====ACTIONS=====
 type ClientActionScopes = {

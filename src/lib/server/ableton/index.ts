@@ -1,30 +1,48 @@
 import type { Ableton } from 'ableton-js';
-import type { ClientActionMessage } from '$lib/types/ableton';
+import type {
+	ClientActionMessage,
+	Scope,
+	ScopeAction,
+	ScopeStateSnapshot
+} from '$lib/types/ableton';
 import { SetStateManager } from './set';
 import { broadcast, send } from '$lib/server/ws-client-communication';
 import type { WebSocket } from 'ws';
+import { TrackStateManager } from './track';
 
 export class AbletonSyncManager {
 	private setStateManager: SetStateManager;
+	private trackStateManager: TrackStateManager;
 
 	constructor(private readonly ableton: Ableton) {
-		this.setStateManager = new SetStateManager(ableton, (update) => {
-			broadcast({ type: 'stateUpdate', scope: 'set', update });
+		this.setStateManager = new SetStateManager(ableton, (snapshot) => {
+			broadcast({ type: 'stateSnapshot', scope: 'set', snapshot });
 		});
-		// TODO: add state manager for tracks with nested state managers for every single track
+		this.trackStateManager = new TrackStateManager(ableton, (snapshot) => {
+			broadcast({ type: 'stateSnapshot', scope: 'track', snapshot });
+		});
 
 		this.setupConnectionListener();
+	}
+
+	private getCurrentStateSnapshots() {
+		const state: ScopeStateSnapshot<'set'> = {
+			connected: this.ableton.isConnected()
+		};
+		return [state];
 	}
 
 	private setupConnectionListener() {
 		this.ableton.addListener('connected', async () => {
 			if (this.ableton.isConnected()) {
 				console.log('Ableton Live connected');
-				const setState = await this.setStateManager.getLatestState();
-				broadcast({ type: 'stateUpdate', scope: 'set', update: setState });
+				const snapshots = this.getCurrentStateSnapshots();
+				for (const snapshot of snapshots) {
+					broadcast({ type: 'stateSnapshot', scope: 'set', snapshot: snapshot });
+				}
 			} else {
 				console.log('Ableton Live disconnected');
-				broadcast({ type: 'stateUpdate', scope: 'set', update: { connected: false } });
+				broadcast({ type: 'stateSnapshot', scope: 'set', snapshot: { connected: false } });
 			}
 		});
 	}
@@ -32,10 +50,13 @@ export class AbletonSyncManager {
 	async sendCurrentState(client: WebSocket) {
 		if (this.ableton.isConnected()) {
 			console.log('Sending current state to client');
-			const setState = await this.setStateManager.getLatestState();
-			send(client, { type: 'stateUpdate', scope: 'set', update: setState });
+			const snapshots = this.getCurrentStateSnapshots();
+			for (const snapshot of snapshots) {
+				send(client, { type: 'stateSnapshot', scope: 'set', snapshot: snapshot });
+			}
 		} else {
-			send(client, { type: 'stateUpdate', scope: 'set', update: { connected: false } });
+			console.log('Sending disconnected state to client');
+			send(client, { type: 'stateSnapshot', scope: 'set', snapshot: { connected: false } });
 		}
 	}
 
@@ -43,15 +64,10 @@ export class AbletonSyncManager {
 		if (this.ableton.isConnected()) {
 			console.log(`Handling client message`, msg);
 			const { scope, action } = msg;
-
 			if (scope === 'set') {
-				return this.setStateManager.handleAction(action);
+				return await this.setStateManager.handleAction(action);
 			} else if (scope === 'track') {
-				console.warn(
-					`Could not handle client message as tracks state management is not implemented yet`,
-					msg
-				);
-				return true;
+				return await this.trackStateManager.handleAction(action);
 			} else {
 				console.warn(`Could not handle client message as scope is not recognized`, msg);
 				return false;
@@ -61,4 +77,11 @@ export class AbletonSyncManager {
 			return false;
 		}
 	}
+}
+export interface ScopeActionHandler<T extends Scope> {
+	handleAction(action: ScopeAction<T>): Promise<boolean>;
+}
+
+export interface ScopeStateSnapshotProvider<T extends Scope> {
+	getStateSnapshot(): Promise<ScopeStateSnapshot<T>>;
 }

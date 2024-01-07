@@ -1,13 +1,13 @@
 import { derived, get, writable } from 'svelte/store';
 import { ws } from '$lib/client/stores/websocket-connection';
-import type { ScopeAction, ScopeActionMessage, ScopeStateUpdate } from '$lib/types/ableton';
+import type { ScopeAction, ScopeActionMessage, ScopeStateSnapshot } from '$lib/types/ableton';
 
 const playingInternal = writable(false);
 const timeInternal = writable(0);
 const bpmInternal = writable(0);
 const connectedInternal = writable(false);
 
-export function handleSetUpdate(update: ScopeStateUpdate<'set'>) {
+export function handleSetUpdate(update: ScopeStateSnapshot<'set'>) {
 	const { playing, time, bpm, connected } = update;
 	if (playing !== undefined) {
 		playingInternal.set(playing);

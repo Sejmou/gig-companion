@@ -1,7 +1,10 @@
 import type { SetState } from '$lib/types/ableton/set/state';
 import type { Ableton } from 'ableton-js';
 import type { SetAction } from '$lib/types/ableton/set/actions';
-export class SetStateManager {
+import type { ScopeActionHandler, ScopeStateSnapshotProvider } from '.';
+export class SetStateManager
+	implements ScopeActionHandler<'set'>, ScopeStateSnapshotProvider<'set'>
+{
 	constructor(
 		private readonly ableton: Ableton,
 		private readonly onUpdate: (update: Partial<SetState>) => void
@@ -35,7 +38,7 @@ export class SetStateManager {
 		return true;
 	}
 
-	async getLatestState() {
+	async getStateSnapshot() {
 		const playing = await this.ableton.song.get('is_playing');
 		const bpm = await this.ableton.song.get('tempo');
 		const time = await this.ableton.song.get('current_song_time');

@@ -36,4 +36,8 @@ export type TrackBase = {
  *
  * This excludes properties like `parentId` or `childIds` that are not observable.
  */
-export type ObservableTrackState = Omit<Track, 'name' | 'parentId' | 'childIds'>;
+export type ObservableTrackState =
+	| Omit<GroupTrack, 'name' | 'parentId' | 'childIds'>
+	| Omit<MidiOrAudioTrack, 'name' | 'parentId'>;
+// the following does not work as expected:
+// export type ObservableTrackState = Omit<Track, 'name' | 'parentId' | 'childIds'>;
