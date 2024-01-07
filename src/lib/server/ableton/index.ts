@@ -1,48 +1,59 @@
 import type { Ableton } from 'ableton-js';
 import type {
-	ClientActionMessage,
-	Scope,
+	ScopeStateSnapshot,
+	ScopeStateUpdatePayload,
+	StateSnapshotScope,
+	StateUpdateScope
+} from '$lib/types/ableton/server';
+import type {
+	ClientActionScope,
 	ScopeAction,
-	ScopeStateSnapshot
-} from '$lib/types/ableton';
+	ClientActionMessage
+} from '$lib/types/ableton/client';
 import { SetStateManager } from './set';
 import { broadcast, send } from '$lib/server/ws-client-communication';
 import type { WebSocket } from 'ws';
 import { TrackStateManager } from './track';
 
-export class AbletonSyncManager {
+export class AbletonSyncManager implements ScopeUpdateObserver<StateUpdateScope> {
 	private setStateManager: SetStateManager;
 	private trackStateManager: TrackStateManager;
 
 	constructor(private readonly ableton: Ableton) {
-		this.setStateManager = new SetStateManager(ableton, (snapshot) => {
-			broadcast({ type: 'stateSnapshot', scope: 'set', snapshot });
-		});
-		this.trackStateManager = new TrackStateManager(ableton, (snapshot) => {
-			broadcast({ type: 'stateSnapshot', scope: 'track', snapshot });
-		});
+		this.setStateManager = new SetStateManager(ableton);
+		this.setStateManager.attach(this);
+		this.trackStateManager = new TrackStateManager(ableton);
+		this.trackStateManager.attach(this);
 
 		this.setupConnectionListener();
 	}
+	notify(payload: ScopeStateUpdatePayload<StateUpdateScope>): void {
+		broadcast({ type: 'stateUpdate', ...payload });
+	}
 
-	private getCurrentStateSnapshots() {
-		const state: ScopeStateSnapshot<'set'> = {
-			connected: this.ableton.isConnected()
+	private async getCurrentScopeSnapshotObjects() {
+		const set: ScopeSnapshotObj<'set'> = {
+			scope: 'set',
+			snapshot: await this.setStateManager.getStateSnapshot()
 		};
-		return [state];
+		const tracks: ScopeSnapshotObj<'tracks'> = {
+			scope: 'tracks',
+			snapshot: await this.trackStateManager.getStateSnapshot()
+		};
+		return [set, tracks];
 	}
 
 	private setupConnectionListener() {
 		this.ableton.addListener('connected', async () => {
 			if (this.ableton.isConnected()) {
 				console.log('Ableton Live connected');
-				const snapshots = this.getCurrentStateSnapshots();
-				for (const snapshot of snapshots) {
-					broadcast({ type: 'stateSnapshot', scope: 'set', snapshot: snapshot });
+				const snapshots = await this.getCurrentScopeSnapshotObjects();
+				for (const obj of snapshots) {
+					broadcast({ type: 'stateSnapshot', ...obj });
 				}
 			} else {
 				console.log('Ableton Live disconnected');
-				broadcast({ type: 'stateSnapshot', scope: 'set', snapshot: { connected: false } });
+				broadcast({ type: 'stateUpdate', scope: 'set', update: { connected: false } });
 			}
 		});
 	}
@@ -50,13 +61,13 @@ export class AbletonSyncManager {
 	async sendCurrentState(client: WebSocket) {
 		if (this.ableton.isConnected()) {
 			console.log('Sending current state to client');
-			const snapshots = this.getCurrentStateSnapshots();
-			for (const snapshot of snapshots) {
-				send(client, { type: 'stateSnapshot', scope: 'set', snapshot: snapshot });
+			const snapshots = await this.getCurrentScopeSnapshotObjects();
+			for (const obj of snapshots) {
+				send(client, { type: 'stateSnapshot', ...obj });
 			}
 		} else {
 			console.log('Sending disconnected state to client');
-			send(client, { type: 'stateSnapshot', scope: 'set', snapshot: { connected: false } });
+			send(client, { type: 'stateUpdate', scope: 'set', update: { connected: false } });
 		}
 	}
 
@@ -78,10 +89,25 @@ export class AbletonSyncManager {
 		}
 	}
 }
-export interface ScopeActionHandler<T extends Scope> {
+
+type ScopeSnapshotObj<T extends StateSnapshotScope> = {
+	scope: T;
+	snapshot: ScopeStateSnapshot<T>;
+};
+
+export interface ScopeActionHandler<T extends ClientActionScope> {
 	handleAction(action: ScopeAction<T>): Promise<boolean>;
 }
 
-export interface ScopeStateSnapshotProvider<T extends Scope> {
+export interface ScopeStateSnapshotProvider<T extends StateSnapshotScope> {
 	getStateSnapshot(): Promise<ScopeStateSnapshot<T>>;
+}
+
+export interface ScopeUpdateObserver<T extends StateUpdateScope> {
+	notify(payload: ScopeStateUpdatePayload<T>): void;
+}
+
+export interface ScopeUpdateObservable<T extends StateUpdateScope> {
+	attach(observer: ScopeUpdateObserver<T>): void;
+	// detach(observer: ScopeUpdateObserver<T>): void; // not really needed atm
 }

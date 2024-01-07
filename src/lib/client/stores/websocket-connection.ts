@@ -1,4 +1,5 @@
-import { isStateSnapshotMessage, type ClientActionMessage } from '$lib/types/ableton';
+import { isStateSnapshotMessage, isStateUpdateMessage } from '$lib/types/ableton/server';
+import type { ClientActionMessage } from '$lib/types/ableton/client';
 import { handleSetUpdate } from '$lib/client/stores/ableton/set';
 import { isServerEvent } from '../../types/server-events';
 import type { ClientEvent, ClientReady } from '../../types/client-events';
@@ -43,6 +44,11 @@ function handleMessageReceived(event: MessageEvent) {
 		const { scope, snapshot } = msg;
 		if (scope == 'set') {
 			handleSetUpdate(snapshot);
+		}
+	} else if (isStateUpdateMessage(msg)) {
+		const { scope, update } = msg;
+		if (scope == 'set') {
+			handleSetUpdate(update);
 		}
 	} else console.warn('Unknown message received', msg);
 }

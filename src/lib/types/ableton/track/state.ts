@@ -8,7 +8,7 @@ export type Track = MidiOrAudioTrack | GroupTrack;
 /**
  * A track that can be armed (i.e. a MIDI or Audio track).
  */
-export type MidiOrAudioTrack = TrackBase & {
+export type MidiOrAudioTrack = BaseTrack & {
 	type: 'midiOrAudio';
 	armed: boolean;
 	monitoringState: 'in' | 'auto' | 'off';
@@ -17,12 +17,12 @@ export type MidiOrAudioTrack = TrackBase & {
 /**
  * A track that groups other tracks. Those tracks can be either `MidiOrAudioTrack`s or `GroupTrack`s.
  */
-export type GroupTrack = TrackBase & {
+export type GroupTrack = BaseTrack & {
 	type: 'group';
-	childIds: string[]; // not observable
+	children: Track[]; // not observable
 };
 
-export type TrackBase = {
+export type BaseTrack = {
 	id: string; // not observable, but needs to be present to uniquely identify update
 	name: string; // not observable
 	// devices: Device[]; // TODO: implement support for this

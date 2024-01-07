@@ -2,9 +2,55 @@ import type { Ableton } from 'ableton-js';
 import type { Track as AbletonTrack } from 'ableton-js/ns/track';
 import type { ServerTrack, ServerGroupTrack, ServerMidiOrAudioTrack } from '.';
 import { TwoWayMap } from '$lib/utils';
-import type { GroupTrack, MidiOrAudioTrack, TrackBase } from '$lib/types/ableton/track/state';
+import type {
+	GroupTrack,
+	MidiOrAudioTrack,
+	Track,
+	BaseTrack
+} from '$lib/types/ableton/track/state';
 
-export async function getCurrentRootTracks(ableton: Ableton) {
+export function convertToClientRootTracks(rootTracks: ServerTrack[]): Track[] {
+	const result: Track[] = [];
+	for (const rootTrack of rootTracks) {
+		result.push(convertToClientRootTrack(rootTrack));
+	}
+	return result;
+}
+
+function convertToClientRootTrack(trackTreeNode: ServerTrack): Track {
+	const serverTrack = trackTreeNode;
+	const { id, muted, name, soloed, type, parentId } = serverTrack;
+	const clientTrack: BaseTrack = {
+		id,
+		name,
+		muted,
+		soloed,
+		parentId
+	};
+	if (type === 'group') {
+		const groupTrack = serverTrack;
+		const children: Track[] = [];
+		for (const child of groupTrack.children) {
+			children.push(convertToClientRootTrack(child));
+		}
+		return {
+			...clientTrack,
+			type: 'group',
+			children
+		};
+	} else {
+		const midiOrAudioTrack = serverTrack;
+		const { armed, monitoringState } = midiOrAudioTrack;
+		return {
+			...clientTrack,
+			type: 'midiOrAudio',
+			armed,
+			monitoringState
+		};
+	}
+}
+
+export async function getCurrentRootTracks(ableton: Ableton): Promise<ServerTrack[]> {
 	const tracks = await ableton.song.get('tracks');
 	const { tracksMap, parentIdChildrenMap } = await getAbletonTracksAndChildren(tracks);
 	const tempTracks = await Promise.all(tracks.map((t) => processTrack(t, parentIdChildrenMap)));
@@ -124,10 +170,11 @@ export const numberToMonitoringState = new TwoWayMap<number, MidiOrAudioTrack['m
 	[2, 'auto']
 ]);
 
-type TempBaseTrack = TrackBase & {
+type TempBaseTrack = BaseTrack & {
 	raw: AbletonTrack;
 };
-type TempGroupTrack = GroupTrack & {
+type TempGroupTrack = Omit<GroupTrack, 'children'> & {
+	childIds: string[];
 	raw: AbletonTrack;
 };
 type TempMidiOrAudioTrack = MidiOrAudioTrack & {

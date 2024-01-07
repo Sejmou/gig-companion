@@ -1,16 +1,29 @@
 import type {
 	GroupTrack,
 	MidiOrAudioTrack,
-	ObservableTrackState
+	ObservableTrackState,
+	Track
 } from '$lib/types/ableton/track/state';
 import type { Track as AbletonTrack } from 'ableton-js/ns/track';
 import type { Ableton } from 'ableton-js';
-import type { ScopeActionHandler, ScopeStateSnapshotProvider } from '..';
-import { getCurrentRootTracks, numberToMonitoringState } from './process-and-transform';
-import type { ScopeAction } from '$lib/types/ableton';
+import type {
+	ScopeActionHandler,
+	ScopeStateSnapshotProvider,
+	ScopeUpdateObservable,
+	ScopeUpdateObserver
+} from '..';
+import {
+	convertToClientRootTracks,
+	getCurrentRootTracks,
+	numberToMonitoringState
+} from './process-and-transform';
+import type { ScopeAction } from '$lib/types/ableton/client';
 
 export class TrackStateManager
-	implements ScopeStateSnapshotProvider<'tracks'>, ScopeActionHandler<'track'>
+	implements
+		ScopeStateSnapshotProvider<'tracks'>,
+		ScopeActionHandler<'track'>,
+		ScopeUpdateObservable<'track'>
 {
 	private tracksMap: Map<string, ServerTrack> = new Map();
 	/**
@@ -20,15 +33,24 @@ export class TrackStateManager
 	 */
 	private rootTracks: ServerTrack[] = [];
 
-	constructor(
-		private readonly ableton: Ableton,
-		private readonly onUpdate: (update: Partial<ObservableTrackState>) => void
-	) {
+	private observers: Set<ScopeUpdateObserver<'track'>> = new Set();
+
+	constructor(private readonly ableton: Ableton) {
 		this.initialize();
 	}
 
-	async getStateSnapshot() {
-		return this.rootTracks;
+	attach(observer: ScopeUpdateObserver<'track'>): void {
+		this.observers.add(observer);
+	}
+
+	private notifyObservers(update: Partial<ObservableTrackState>): void {
+		for (const observer of this.observers) {
+			observer.notify(update);
+		}
+	}
+
+	async getStateSnapshot(): Promise<Track[]> {
+		return convertToClientRootTracks(this.rootTracks);
 	}
 
 	async handleAction(action: ScopeAction<'track'>): Promise<boolean> {
@@ -97,11 +119,11 @@ export class TrackStateManager
 		raw.addListener('mute', (mutedNumber) => {
 			const muted = Boolean(mutedNumber);
 			track.muted = muted;
-			this.onUpdate({ muted });
+			this.notifyObservers({ muted });
 		});
 		raw.addListener('solo', (soloed) => {
 			track.soloed = soloed;
-			this.onUpdate({ soloed });
+			this.notifyObservers({ soloed });
 		});
 		if (type === 'midiOrAudio') {
 			if (track.type !== 'midiOrAudio') {
@@ -114,13 +136,13 @@ export class TrackStateManager
 			raw.addListener('arm', (armedNum) => {
 				const armed = Boolean(armedNum);
 				mOrATrack.armed = armed;
-				this.onUpdate({ armed });
+				this.notifyObservers({ armed });
 			});
 			raw.addListener('current_monitoring_state', (monitoringStateNum) => {
 				const monitoringState = numberToMonitoringState.getByKey(monitoringStateNum);
 				if (monitoringState) {
 					mOrATrack.monitoringState = monitoringState;
-					this.onUpdate({ monitoringState });
+					this.notifyObservers({ monitoringState });
 				} else console.error(`Unknown monitoring state ${monitoringState}`);
 			});
 		}

@@ -1,13 +1,16 @@
 import type { ClientEvent } from '$lib/types/client-events';
 import type { ServerEvent } from '$lib/types/server-events';
-import type { ClientActionMessage, StateSnapshotMessage } from '$lib/types/ableton';
+import type { StateSnapshotMessage, StateUpdateMessage } from '$lib/types/ableton/server';
+import type { ClientActionMessage } from '$lib/types/ableton/client';
 import { getWebSocketServer } from '$lib/server/websocket-server';
 import type { WebSocket } from 'ws';
+
+type ServerMessage = StateSnapshotMessage | StateUpdateMessage | ServerEvent;
 
 /**
  * Broadcasts a message to all connected clients
  */
-export function broadcast(msg: StateSnapshotMessage | ServerEvent) {
+export function broadcast(msg: ServerMessage) {
 	const wss = getWebSocketServer();
 	const msgString = JSON.stringify(msg);
 	for (const client of wss.clients) {
@@ -18,7 +21,7 @@ export function broadcast(msg: StateSnapshotMessage | ServerEvent) {
 /**
  * Sends a message to a single client
  */
-export function send(client: WebSocket, msg: StateSnapshotMessage | ServerEvent) {
+export function send(client: WebSocket, msg: ServerMessage) {
 	const msgString = JSON.stringify(msg);
 	client.send(msgString);
 }

@@ -1,26 +1,43 @@
 import type { SetState } from '$lib/types/ableton/set/state';
 import type { Ableton } from 'ableton-js';
 import type { SetAction } from '$lib/types/ableton/set/actions';
-import type { ScopeActionHandler, ScopeStateSnapshotProvider } from '.';
+import type {
+	ScopeActionHandler,
+	ScopeStateSnapshotProvider,
+	ScopeUpdateObservable,
+	ScopeUpdateObserver
+} from '.';
 export class SetStateManager
-	implements ScopeActionHandler<'set'>, ScopeStateSnapshotProvider<'set'>
+	implements
+		ScopeActionHandler<'set'>,
+		ScopeStateSnapshotProvider<'set'>,
+		ScopeUpdateObservable<'set'>
 {
-	constructor(
-		private readonly ableton: Ableton,
-		private readonly onUpdate: (update: Partial<SetState>) => void
-	) {
+	private observers: Set<ScopeUpdateObserver<'set'>> = new Set();
+
+	constructor(private readonly ableton: Ableton) {
 		this.setupListeners();
+	}
+
+	attach(observer: ScopeUpdateObserver<'set'>): void {
+		this.observers.add(observer);
+	}
+
+	private notifyObservers(update: Partial<SetState>): void {
+		for (const observer of this.observers) {
+			observer.notify({ scope: 'set', update });
+		}
 	}
 
 	private setupListeners(): void {
 		this.ableton.song.addListener('is_playing', (playing) => {
-			this.onUpdate({ playing });
+			this.notifyObservers({ playing });
 		});
 		this.ableton.song.addListener('tempo', (bpm) => {
-			this.onUpdate({ bpm });
+			this.notifyObservers({ bpm });
 		});
 		this.ableton.song.addListener('current_song_time', (time) => {
-			this.onUpdate({ time });
+			this.notifyObservers({ time });
 		});
 	}
 
