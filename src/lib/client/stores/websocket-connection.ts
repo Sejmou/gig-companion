@@ -56,7 +56,8 @@ function handleConnectionError(event: Event) {
 
 function handleMessageReceived(event: MessageEvent) {
 	const msg = JSON.parse(event.data);
-	console.log('Received message from server', msg);
+	// don't log every time the time changes as otherwise we get a lot of console spam
+	if (!msg?.update?.time) console.log('Received message from server', msg);
 	let handled = false;
 	if (isServerEvent(msg)) {
 		if (msg.name === 'ready') {
