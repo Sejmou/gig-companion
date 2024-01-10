@@ -1,61 +1,6 @@
-type TrackActionBase = {
-	id: string;
-};
+import type { ObservableTrackStateUpdate } from './state';
 
 /**
- * Mute a track.
+ * Clients can update any prop that can be observed by the server.
  */
-type Mute = TrackActionBase & {
-	name: 'mute';
-};
-
-/**
- * Unmute a track.
- */
-type Unmute = TrackActionBase & {
-	name: 'unmute';
-};
-
-/**
- * Solo a track.
- */
-type Solo = TrackActionBase & {
-	name: 'solo';
-};
-
-/**
- * Unsolo a track.
- */
-type Unsolo = TrackActionBase & {
-	name: 'unsolo';
-};
-
-/**
- * Arm a track.
- *
- * Only applicable to MIDI or audio tracks (no-op for group tracks).
- */
-type Arm = TrackActionBase & {
-	name: 'arm';
-};
-
-/**
- * Disarm a track.
- *
- * Only applicable to MIDI or audio tracks (no-op for group tracks).
- */
-type Disarm = TrackActionBase & {
-	name: 'disarm';
-};
-
-/**
- * Set the monitoring state of a track.
- *
- * Only applicable to MIDI or audio tracks (no-op for group tracks).
- */
-type SetMonitoringState = TrackActionBase & {
-	name: 'setMonitoringState';
-	monitoringState: 'in' | 'auto' | 'off';
-};
-
-export type TrackAction = Mute | Unmute | Solo | Unsolo | Arm | Disarm | SetMonitoringState;
+export type TrackAction = ObservableTrackStateUpdate;

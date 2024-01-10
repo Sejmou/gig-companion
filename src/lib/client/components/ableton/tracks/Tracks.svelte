@@ -4,5 +4,5 @@
 </script>
 
 {#each $rootTracks as track}
-	<Track {track} />
+	<Track id={track.id} />
 {/each}

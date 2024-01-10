@@ -1,7 +1,7 @@
 import type {
 	GroupTrack,
 	MidiOrAudioTrack,
-	ObservableTrackState,
+	ObservableTrackStateUpdate,
 	Track
 } from '$lib/types/ableton/track/state';
 import type { Track as AbletonTrack } from 'ableton-js/ns/track';
@@ -18,6 +18,7 @@ import {
 	numberToMonitoringState
 } from './process-and-transform';
 import type { ScopeAction } from '$lib/types/ableton/client';
+import type { ScopeStateUpdatePayload } from '$lib/types/ableton/server';
 
 export class TrackStateManager
 	implements
@@ -43,7 +44,7 @@ export class TrackStateManager
 		this.observers.add(observer);
 	}
 
-	private notifyObservers(update: Partial<ObservableTrackState>): void {
+	private notifyObservers(update: ScopeStateUpdatePayload<'track'>): void {
 		for (const observer of this.observers) {
 			observer.notify(update);
 		}
@@ -54,37 +55,41 @@ export class TrackStateManager
 	}
 
 	async handleAction(action: ScopeAction<'track'>): Promise<boolean> {
-		const { id, name } = action;
+		const { id } = action;
 		const track = this.tracksMap.get(id);
 		if (!track) {
 			console.warn(`Could not find track with id ${id} - not updating`);
 			return false;
 		}
-		if (name === 'mute') {
-			await track.raw.set('mute', true);
-		} else if (name === 'unmute') {
-			await track.raw.set('mute', false);
-		} else if (name === 'solo') {
-			await track.raw.set('solo', true);
-		} else if (name === 'unsolo') {
-			await track.raw.set('solo', false);
+		let didSet = false;
+		const { muted, soloed } = action;
+		if (muted !== undefined) {
+			await track.raw.set('mute', muted);
+			didSet = true;
+		}
+		if (soloed !== undefined) {
+			await track.raw.set('solo', soloed);
+			didSet = true;
 		}
 		// MidiOrAudioTrack specific actions; not sure if I should add some checks here to make sure that the track is actually a MidiOrAudioTrack
-		else if (name === 'arm') {
-			await track.raw.set('arm', true);
-		} else if (name === 'disarm') {
-			await track.raw.set('arm', false);
-		} else if (name === 'setMonitoringState') {
-			const { monitoringState } = action;
-			await track.raw.set(
-				'current_monitoring_state',
-				numberToMonitoringState.getByValue(monitoringState)!
-			);
-		} else {
-			console.warn(`Could not handle client message as action is not recognized`, action);
-			return false;
+		if (action.type === 'midiOrAudio') {
+			const { armed, monitoringState } = action;
+			if (armed !== undefined) {
+				await track.raw.set('arm', armed);
+				didSet = true;
+			}
+			if (monitoringState !== undefined) {
+				await track.raw.set(
+					'current_monitoring_state',
+					numberToMonitoringState.getByValue(monitoringState)!
+				);
+				didSet = true;
+			}
 		}
-		return true;
+		if (!didSet) {
+			console.warn(`Could not find any track property to update in action`, action);
+		}
+		return didSet;
 	}
 
 	private async initialize() {
@@ -115,15 +120,15 @@ export class TrackStateManager
 	}
 
 	private setupTrackUpdateListeners(track: ServerTrack): void {
-		const { raw, type } = track;
+		const { raw, type, id } = track;
 		raw.addListener('mute', (mutedNumber) => {
 			const muted = Boolean(mutedNumber);
 			track.muted = muted;
-			this.notifyObservers({ muted });
+			this.sendUpdatePayload({ id, type, muted });
 		});
 		raw.addListener('solo', (soloed) => {
 			track.soloed = soloed;
-			this.notifyObservers({ soloed });
+			this.sendUpdatePayload({ id, type, soloed });
 		});
 		if (type === 'midiOrAudio') {
 			if (track.type !== 'midiOrAudio') {
@@ -136,16 +141,23 @@ export class TrackStateManager
 			raw.addListener('arm', (armedNum) => {
 				const armed = Boolean(armedNum);
 				mOrATrack.armed = armed;
-				this.notifyObservers({ armed });
+				this.sendUpdatePayload({ id, type, armed });
 			});
 			raw.addListener('current_monitoring_state', (monitoringStateNum) => {
 				const monitoringState = numberToMonitoringState.getByKey(monitoringStateNum);
 				if (monitoringState) {
 					mOrATrack.monitoringState = monitoringState;
-					this.notifyObservers({ monitoringState });
+					this.sendUpdatePayload({ id, type, monitoringState });
 				} else console.error(`Unknown monitoring state ${monitoringState}`);
 			});
 		}
+	}
+
+	private sendUpdatePayload(update: ObservableTrackStateUpdate) {
+		this.notifyObservers({
+			scope: 'track',
+			update
+		});
 	}
 }
 

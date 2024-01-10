@@ -34,10 +34,19 @@ export type BaseTrack = {
 /**
  * Track state that is observable by the frontend (subset of `Track`).
  *
- * This excludes properties like `parentId` or `childIds` that are not observable.
+ * This excludes properties like `name`, `parentId` or `childIds` that are not observable, but includes `id` and `type` as they are needed to identify the track and type of change.
  */
-export type ObservableTrackState =
-	| Omit<GroupTrack, 'name' | 'parentId' | 'childIds'>
-	| Omit<MidiOrAudioTrack, 'name' | 'parentId'>;
+export type ObservableTrackStateUpdate =
+	| ObservableGroupTrackStateUpdate
+	| ObservableMidiOrAudioTrackStateUpdate;
 // the following does not work as expected:
 // export type ObservableTrackState = Omit<Track, 'name' | 'parentId' | 'childIds'>;
+
+export type ObservableGroupTrackStateUpdate = {
+	id: string;
+	type: 'group';
+} & Partial<Omit<GroupTrack, 'name' | 'parentId' | 'childIds' | 'children'>>;
+export type ObservableMidiOrAudioTrackStateUpdate = {
+	id: string;
+	type: 'midiOrAudio';
+} & Partial<Omit<MidiOrAudioTrack, 'name' | 'parentId'>>;

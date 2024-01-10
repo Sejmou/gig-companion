@@ -4,6 +4,24 @@ import { handleSetUpdate } from '$lib/client/stores/ableton/set';
 import { isServerEvent } from '../../types/server-events';
 import type { ClientEvent, ClientReady } from '../../types/client-events';
 import { derived, get, writable } from 'svelte/store';
+import { handleTracksUpdate } from './ableton/tracks';
+import { handleTrackUpdate } from './ableton/track';
+
+const _serverReady = writable(false);
+const _connectedToServer = writable(false);
+const serverReady = derived(_serverReady, (val) => val);
+const connectedToServer = derived(_connectedToServer, (val) => val);
+
+let con = createWebSocketConnection();
+
+export const ws = {
+	send: (msg: ClientActionMessage | ClientEvent) => {
+		con.send(JSON.stringify(msg));
+	},
+	reset: resetWebsocketConnection,
+	serverReady,
+	connectedToServer
+};
 
 function handleConnectionOpen(event: Event) {
 	console.log('WebSocket connection opened', event);
@@ -39,21 +57,28 @@ function handleConnectionError(event: Event) {
 function handleMessageReceived(event: MessageEvent) {
 	const msg = JSON.parse(event.data);
 	console.log('Received message from server', msg);
+	let handled = false;
 	if (isServerEvent(msg)) {
 		if (msg.name === 'ready') {
 			_serverReady.set(true);
+			handled = true;
 		}
 	} else if (isStateSnapshotMessage(msg)) {
 		const { scope, snapshot } = msg;
 		if (scope == 'set') {
-			handleSetUpdate(snapshot);
+			handled = handleSetUpdate(snapshot);
+		} else if (scope == 'tracks') {
+			handled = handleTracksUpdate(snapshot);
 		}
 	} else if (isStateUpdateMessage(msg)) {
 		const { scope, update } = msg;
 		if (scope == 'set') {
-			handleSetUpdate(update);
+			handled = handleSetUpdate(update);
+		} else if (scope == 'track') {
+			handled = handleTrackUpdate(update);
 		}
-	} else console.warn('Unknown message received', msg);
+	}
+	if (!handled) console.warn('Server message was not handled', msg);
 }
 
 function createWebSocketConnection() {
@@ -79,19 +104,3 @@ export function resetWebsocketConnection() {
 	con = createWebSocketConnection();
 	_serverReady.set(false);
 }
-
-const _serverReady = writable(false);
-const _connectedToServer = writable(false);
-const serverReady = derived(_serverReady, (val) => val);
-const connectedToServer = derived(_connectedToServer, (val) => val);
-
-let con = createWebSocketConnection();
-
-export const ws = {
-	send: (msg: ClientActionMessage | ClientEvent) => {
-		con.send(JSON.stringify(msg));
-	},
-	reset: resetWebsocketConnection,
-	serverReady,
-	connectedToServer
-};

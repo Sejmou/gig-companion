@@ -3,8 +3,9 @@ import type { ScopeStateSnapshot } from '$lib/types/ableton/server';
 
 const rootTracksInternal = writable<ScopeStateSnapshot<'tracks'>>([]);
 
-export function handleTracksUpdate(update: ScopeStateSnapshot<'tracks'>) {
+export function handleTracksUpdate(update: ScopeStateSnapshot<'tracks'>): boolean {
 	rootTracksInternal.set(update!);
+	return true;
 }
 
 /**

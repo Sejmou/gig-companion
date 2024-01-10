@@ -1,9 +1,9 @@
 import type { SetState } from './set/state';
-import type { ObservableTrackState, Track } from './track/state';
+import type { ObservableTrackStateUpdate, Track } from './track/state';
 
 type StateSnapshotScopes = {
 	set: SetState;
-	track: ObservableTrackState;
+	track: ObservableTrackStateUpdate;
 	tracks: Track[];
 };
 export type StateSnapshotScope = keyof StateSnapshotScopes;
@@ -27,14 +27,14 @@ export const isStateSnapshotMessage = (message: unknown): message is StateSnapsh
 
 // =====STATE UPDATES=====
 type StateUpdateScopes = {
-	set: SetState;
-	track: ObservableTrackState;
+	set: Partial<SetState>;
+	track: ObservableTrackStateUpdate;
 };
 export type StateUpdateScope = keyof StateUpdateScopes;
-export type ScopeStateUpdate<T extends StateUpdateScope> = Partial<StateUpdateScopes[T]>;
+export type ScopeStateUpdate<T extends StateUpdateScope> = StateUpdateScopes[T];
 type StateUpdatePayload<T extends StateUpdateScope> = {
 	scope: T;
-	update: ScopeStateUpdate<T>;
+	update: StateUpdateScopes[T];
 };
 type ScopeStateUpdatePayloads = {
 	[T in StateUpdateScope]: StateUpdatePayload<T>;

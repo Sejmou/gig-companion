@@ -8,20 +8,28 @@ const timeInternal = writable(0);
 const bpmInternal = writable(0);
 const connectedInternal = writable(false);
 
-export function handleSetUpdate(update: ScopeStateSnapshot<'set'> | ScopeStateUpdate<'set'>) {
+export function handleSetUpdate(
+	update: ScopeStateSnapshot<'set'> | ScopeStateUpdate<'set'>
+): boolean {
 	const { playing, time, bpm, connected } = update;
+	let changed = false;
 	if (playing !== undefined) {
 		playingInternal.set(playing);
+		changed = true;
 	}
 	if (time !== undefined) {
 		timeInternal.set(time);
+		changed = true;
 	}
 	if (bpm !== undefined) {
 		bpmInternal.set(bpm);
+		changed = true;
 	}
 	if (connected !== undefined) {
 		connectedInternal.set(connected);
+		changed = true;
 	}
+	return changed;
 }
 
 function sendSetAction(action: ScopeAction<'set'>) {
