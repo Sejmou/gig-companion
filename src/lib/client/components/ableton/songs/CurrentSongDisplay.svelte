@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { cn } from '$lib/client/components/utils';
 	import type { HTMLAttributes } from 'svelte/elements';
+	import { songs } from '$lib/client/stores/ableton/derived/songs';
+
+	songs.subscribe((val) => {
+		console.log('songs', val);
+	});
 
 	type $$Props = HTMLAttributes<HTMLDivElement>;
 

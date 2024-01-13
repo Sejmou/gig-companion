@@ -44,12 +44,6 @@ export class TrackStateManager
 		this.observers.add(observer);
 	}
 
-	private notifyObservers(update: ScopeStateUpdatePayload<'track'>): void {
-		for (const observer of this.observers) {
-			observer.notify(update);
-		}
-	}
-
 	async getStateSnapshot(): Promise<Track[]> {
 		return convertToClientRootTracks(this.rootTracks);
 	}
@@ -124,11 +118,11 @@ export class TrackStateManager
 		raw.addListener('mute', (mutedNumber) => {
 			const muted = Boolean(mutedNumber);
 			track.muted = muted;
-			this.sendUpdatePayload({ id, type, muted });
+			this.sendUpdate({ id, type, muted });
 		});
 		raw.addListener('solo', (soloed) => {
 			track.soloed = soloed;
-			this.sendUpdatePayload({ id, type, soloed });
+			this.sendUpdate({ id, type, soloed });
 		});
 		if (type === 'midiOrAudio') {
 			if (track.type !== 'midiOrAudio') {
@@ -141,23 +135,29 @@ export class TrackStateManager
 			raw.addListener('arm', (armedNum) => {
 				const armed = Boolean(armedNum);
 				mOrATrack.armed = armed;
-				this.sendUpdatePayload({ id, type, armed });
+				this.sendUpdate({ id, type, armed });
 			});
 			raw.addListener('current_monitoring_state', (monitoringStateNum) => {
 				const monitoringState = numberToMonitoringState.getByKey(monitoringStateNum);
 				if (monitoringState) {
 					mOrATrack.monitoringState = monitoringState;
-					this.sendUpdatePayload({ id, type, monitoringState });
+					this.sendUpdate({ id, type, monitoringState });
 				} else console.error(`Unknown monitoring state ${monitoringState}`);
 			});
 		}
 	}
 
-	private sendUpdatePayload(update: ObservableTrackStateUpdate) {
+	private sendUpdate(update: ObservableTrackStateUpdate) {
 		this.notifyObservers({
 			scope: 'track',
 			update
 		});
+	}
+
+	private notifyObservers(update: ScopeStateUpdatePayload<'track'>): void {
+		for (const observer of this.observers) {
+			observer.notify(update);
+		}
 	}
 }
 

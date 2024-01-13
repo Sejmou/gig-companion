@@ -14,16 +14,20 @@ import { SetStateManager } from './set';
 import { broadcast, send } from '$lib/server/ws-client-communication';
 import type { WebSocket } from 'ws';
 import { TrackStateManager } from './track';
+import { CuePointStateManager } from './cuepoint';
 
 export class AbletonSyncManager implements ScopeUpdateObserver<StateUpdateScope> {
 	private setStateManager: SetStateManager;
 	private trackStateManager: TrackStateManager;
+	private cuePointStateManager: CuePointStateManager;
 
 	constructor(private readonly ableton: Ableton) {
 		this.setStateManager = new SetStateManager(ableton);
 		this.setStateManager.attach(this);
 		this.trackStateManager = new TrackStateManager(ableton);
 		this.trackStateManager.attach(this);
+		this.cuePointStateManager = new CuePointStateManager(ableton);
+		this.cuePointStateManager.attach(this);
 
 		this.setupConnectionListener();
 	}
@@ -40,7 +44,11 @@ export class AbletonSyncManager implements ScopeUpdateObserver<StateUpdateScope>
 			scope: 'tracks',
 			snapshot: await this.trackStateManager.getStateSnapshot()
 		};
-		return [set, tracks];
+		const cuepoints: ScopeSnapshotObj<'cuepoints'> = {
+			scope: 'cuepoints',
+			snapshot: await this.cuePointStateManager.getStateSnapshot()
+		};
+		return [set, tracks, cuepoints];
 	}
 
 	private setupConnectionListener() {

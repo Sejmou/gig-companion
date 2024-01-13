@@ -6,6 +6,7 @@ import type { ClientEvent, ClientReady } from '../../types/client-events';
 import { derived, get, writable } from 'svelte/store';
 import { handleTracksUpdate } from './ableton/tracks';
 import { handleTrackUpdate } from './ableton/track';
+import { handleCuePointsUpdate } from './ableton/cuepoints';
 
 const _serverReady = writable(false);
 const _connectedToServer = writable(false);
@@ -70,6 +71,8 @@ function handleMessageReceived(event: MessageEvent) {
 			handled = handleSetUpdate(snapshot);
 		} else if (scope == 'tracks') {
 			handled = handleTracksUpdate(snapshot);
+		} else if (scope === 'cuepoints') {
+			handled = handleCuePointsUpdate(snapshot);
 		}
 	} else if (isStateUpdateMessage(msg)) {
 		const { scope, update } = msg;

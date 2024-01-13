@@ -84,6 +84,10 @@ export const playModes = [
 		label: 'Always start from marker position'
 	}
 ] as const;
+
+/**
+ * The current time in the Ableton Live set. Note that this is measured in beats, not seconds!
+ */
 export const time = derived(timeInternal, ($time) => $time);
 export const bpm = derived(bpmInternal, ($bpm) => $bpm);
 export const connected = derived(connectedInternal, ($connected) => $connected);
