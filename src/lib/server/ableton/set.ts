@@ -7,6 +7,7 @@ import type {
 	ScopeUpdateObservable,
 	ScopeUpdateObserver
 } from '.';
+import type { SmpteTime } from 'ableton-js/ns/song';
 export class SetStateManager
 	implements
 		ScopeActionHandler<'set'>,
@@ -36,8 +37,14 @@ export class SetStateManager
 		this.ableton.song.addListener('tempo', (bpm) => {
 			this.notifyObservers({ bpm });
 		});
-		this.ableton.song.addListener('current_song_time', (time) => {
-			this.notifyObservers({ time });
+		// this doesn't work
+		//this.ableton.song.addListener('current_smpte_song_time', (timeSmpte) => {...
+		// so, we instead fetch the smpte time inside the listener for 'current_song_time' too
+		this.ableton.song.addListener('current_song_time', (timeBeats) => {
+			this.notifyObservers({ timeBeats });
+			this.ableton.song.getCurrentSmpteSongTime(0).then((smpteTime) => {
+				this.notifyObservers({ timeMs: convertToMs(smpteTime) });
+			});
 		});
 	}
 
@@ -58,13 +65,24 @@ export class SetStateManager
 	async getStateSnapshot() {
 		const playing = await this.ableton.song.get('is_playing');
 		const bpm = await this.ableton.song.get('tempo');
-		const time = await this.ableton.song.get('current_song_time');
+		const timeBeats = await this.ableton.song.get('current_song_time');
+		// passing 0 means that 'frames' property of returned SMPTETime object actually contains milliseconds!
+		const timeMs = convertToMs(await this.ableton.song.getCurrentSmpteSongTime(0));
 		const state: SetState = {
 			connected: true,
 			playing,
 			bpm,
-			time
+			timeBeats,
+			timeMs
 		};
 		return state;
 	}
+}
+
+function convertToMs(smpteTime: SmpteTime): number {
+	// this assumes that 0 was passed to getCurrentSmpteSongTime as argument
+	// otherwise, the frames property would NOT contain milliseconds!
+	const { frames: milliseconds, seconds, minutes, hours } = smpteTime;
+	const total = milliseconds + seconds * 1000 + minutes * 60 * 1000 + hours * 60 * 60 * 1000;
+	return total;
 }

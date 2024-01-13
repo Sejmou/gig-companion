@@ -70,8 +70,11 @@ export function handleTrackUpdate(update: ScopeStateUpdate<'track'>): boolean {
 			}
 		}
 		if (soloed !== undefined) {
-			groupTrackUpdaters.get(id)?.soloed(soloed);
-			handled = true;
+			const handler = groupTrackUpdaters.get(id)?.soloed;
+			if (handler) {
+				handler(soloed);
+				handled = true;
+			}
 		}
 		if (!handled) {
 			console.warn(`Didn't handle action for group track ${id}`, update);
@@ -79,22 +82,33 @@ export function handleTrackUpdate(update: ScopeStateUpdate<'track'>): boolean {
 	}
 	if (update.type === 'midiOrAudio') {
 		const { muted, soloed, armed, monitoringState } = update;
-		let handled = false;
 		if (muted !== undefined) {
-			midiOrAudioTrackUpdaters.get(id)?.muted(muted);
-			handled = true;
+			const handler = midiOrAudioTrackUpdaters.get(id)?.muted;
+			if (handler) {
+				handler(muted);
+				handled = true;
+			}
 		}
 		if (soloed !== undefined) {
-			midiOrAudioTrackUpdaters.get(id)?.soloed(soloed);
-			handled = true;
+			const handler = midiOrAudioTrackUpdaters.get(id)?.soloed;
+			if (handler) {
+				handler(soloed);
+				handled = true;
+			}
 		}
 		if (armed !== undefined) {
-			midiOrAudioTrackUpdaters.get(id)?.armed(armed);
-			handled = true;
+			const handler = midiOrAudioTrackUpdaters.get(id)?.armed;
+			if (handler) {
+				handler(armed);
+				handled = true;
+			}
 		}
 		if (monitoringState !== undefined) {
-			midiOrAudioTrackUpdaters.get(id)?.monitoringState(monitoringState);
-			handled = true;
+			const handler = midiOrAudioTrackUpdaters.get(id)?.monitoringState;
+			if (handler) {
+				handler(monitoringState);
+				handled = true;
+			}
 		}
 		if (!handled) {
 			console.warn(`Didn't handle action for midiOrAudio track ${id}`, update);

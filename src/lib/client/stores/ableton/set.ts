@@ -4,21 +4,26 @@ import type { ScopeAction, ScopeActionMessage } from '$lib/types/ableton/client'
 import type { ScopeStateSnapshot, ScopeStateUpdate } from '$lib/types/ableton/server';
 
 const playingInternal = writable(false);
-const timeInternal = writable(0);
+const timeBeatsInternal = writable(0);
+const timeMsInternal = writable(0);
 const bpmInternal = writable(0);
 const connectedInternal = writable(false);
 
 export function handleSetUpdate(
 	update: ScopeStateSnapshot<'set'> | ScopeStateUpdate<'set'>
 ): boolean {
-	const { playing, time, bpm, connected } = update;
+	const { playing, timeBeats, timeMs, bpm, connected } = update;
 	let changed = false;
 	if (playing !== undefined) {
 		playingInternal.set(playing);
 		changed = true;
 	}
-	if (time !== undefined) {
-		timeInternal.set(time);
+	if (timeBeats !== undefined) {
+		timeBeatsInternal.set(timeBeats);
+		changed = true;
+	}
+	if (timeMs !== undefined) {
+		timeMsInternal.set(timeMs);
 		changed = true;
 	}
 	if (bpm !== undefined) {
@@ -86,8 +91,12 @@ export const playModes = [
 ] as const;
 
 /**
- * The current time in the Ableton Live set. Note that this is measured in beats, not seconds!
+ * The current time in the Ableton Live set, measured in beats.
  */
-export const time = derived(timeInternal, ($time) => $time);
+export const timeBeats = derived(timeBeatsInternal, ($time) => $time);
+/**
+ * The current time in the Ableton Live set, measured in milliseconds.
+ */
+export const timeMs = derived(timeMsInternal, ($time) => $time);
 export const bpm = derived(bpmInternal, ($bpm) => $bpm);
 export const connected = derived(connectedInternal, ($connected) => $connected);

@@ -14,10 +14,6 @@
 	$: childIds = track?.type === 'group' ? track.childIds : null;
 	$: muted = track?.muted;
 	$: soloed = track?.soloed;
-
-	track?.soloed.subscribe((soloed) => {
-		console.log('soloed', soloed);
-	});
 </script>
 
 {#if track}

@@ -16,7 +16,11 @@ export type SetState = {
 	 */
 	bpm: number;
 	/**
-	 * The current time in seconds.
+	 * The current time in beats.
 	 */
-	time: number;
+	timeBeats: number;
+	/**
+	 * The current time in milliseconds.
+	 */
+	timeMs: number;
 };
