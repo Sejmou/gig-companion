@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import StatusIndicator from '$lib/client/components/StatusIndicator.svelte';
+	import NavbarLink from '$lib/client/components/ui/Navbar/NavbarLink.svelte';
 	import { connected as abletonConnected } from '$lib/client/stores/ableton/set';
 	import { ws } from '$lib/client/stores/websocket-connection';
 	import { derived } from 'svelte/store';
@@ -14,54 +15,48 @@
 	const openDialog = () => {
 		connectionManagementDialog.showModal();
 	};
+
+	const routes = [
+		{
+			name: 'Songs',
+			path: '/songs'
+		},
+		{
+			name: 'Settings',
+			path: '/settings'
+		}
+	];
 </script>
 
 <div class="navbar bg-base-100">
 	<div>
 		<div class="dropdown">
-			<label tabindex="0" class="btn btn-ghost lg:hidden">
+			<label class="btn btn-ghost lg:hidden" for="menu-toggle">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					class="h-5 w-5"
 					fill="none"
 					viewBox="0 0 24 24"
 					stroke="currentColor"
-					><path
+				>
+					<path
 						stroke-linecap="round"
 						stroke-linejoin="round"
 						stroke-width="2"
 						d="M4 6h16M4 12h8m-8 6h16"
-					/></svg
-				>
+					/>
+				</svg>
 			</label>
-			<ul
-				tabindex="0"
-				class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+			<input type="checkbox" id="menu-toggle" class="hidden" />
+			<button
+				class="flex items-center"
+				on:click={openDialog}
+				type="button"
+				aria-label="Open Connection Dialog"
 			>
-				<li>
-					<a
-						href="/songs"
-						class={$page.url.pathname == '/songs' ? 'text-black dark:text-white' : 'text-gray-500'}
-						>Songs</a
-					>
-				</li>
-				<li>
-					<a
-						href="/settings"
-						class={$page.url.pathname == '/settings'
-							? 'text-black dark:text-white'
-							: 'text-gray-500'}>Settings</a
-					>
-				</li>
-				<!-- Add more subpages here as needed (make sure to add in other list as well!) -->
-				<!-- On mobile, show the connection state here -->
-				<li>
-					<div class="flex items-center" on:click={openDialog}>
-						<span class="mr-auto">Connection </span>
-						<StatusIndicator connected={$connected} />
-					</div>
-				</li>
-			</ul>
+				<span class="mr-auto">Connection </span>
+				<StatusIndicator connected={$connected} />
+			</button>
 		</div>
 		<a href="/" class="btn btn-ghost normal-case text-xl">Gig Companion</a>
 	</div>
@@ -84,10 +79,10 @@
 			<!-- Add more subpages here as needed (make sure to add in other list as well!) -->
 		</ul>
 		<div class="hidden lg:flex absolute right-2">
-			<div class="btn btn-neutral flex gap-2 items-center" on:click={openDialog}>
+			<button class="btn btn-neutral flex gap-2 items-center" on:click={openDialog} type="button">
 				<span>Connection Status</span>
 				<StatusIndicator connected={$connected} />
-			</div>
+			</button>
 		</div>
 	</div>
 </div>
