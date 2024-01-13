@@ -40,9 +40,11 @@
 	"type": "module",
 	"dependencies": {
 		"ableton-js": "^3.4.1",
+		"clsx": "^2.1.0",
 		"iconify-icon": "^1.0.8",
 		"nanoid": "^5.0.4",
 		"svelte-persisted-store": "^0.7.0",
+		"tailwind-merge": "^2.2.0",
 		"ws": "^8.16.0"
 	}
 }
