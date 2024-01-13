@@ -9,11 +9,10 @@
 	<title>Gig Companion</title>
 </svelte:head>
 
-<main class="relative flex flex-col items-center w-full gap-2 max-w-screen-lg mx-auto">
+<main class="flex flex-col items-center w-full gap-2 max-w-screen-lg mx-auto">
 	<div class="flex gap-4">
 		<TimeDisplay />
 		<PlayButton />
 		<TempoDisplay />
 	</div>
-	<Tracks />
 </main>

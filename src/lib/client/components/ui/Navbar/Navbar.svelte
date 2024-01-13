@@ -18,6 +18,10 @@
 
 	const routes = [
 		{
+			name: 'Tracks',
+			path: '/tracks'
+		},
+		{
 			name: 'Songs',
 			path: '/songs'
 		},
@@ -72,21 +76,11 @@
 	</div>
 	<div class="hidden lg:flex">
 		<ul class="menu menu-horizontal px-1">
-			<li>
-				<a
-					href="/songs"
-					class={$page.url.pathname == '/songs' ? 'text-black dark:text-white' : 'text-gray-500'}
-					>Songs</a
-				>
-			</li>
-			<li>
-				<a
-					href="/settings"
-					class={$page.url.pathname == '/settings' ? 'text-black dark:text-white' : 'text-gray-500'}
-					>Settings</a
-				>
-			</li>
-			<!-- Add more subpages here as needed (make sure to add in other list as well!) -->
+			{#each routes as route}
+				<li>
+					<NavbarLink href={route.path}>{route.name}</NavbarLink>
+				</li>
+			{/each}
 		</ul>
 		<div class="hidden lg:flex absolute right-2">
 			<button class="btn btn-neutral flex gap-2 items-center" on:click={openDialog} type="button">
