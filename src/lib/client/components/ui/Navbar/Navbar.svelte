@@ -31,32 +31,42 @@
 <div class="navbar bg-base-100">
 	<div>
 		<div class="dropdown">
-			<label class="btn btn-ghost lg:hidden" for="menu-toggle">
+			<label tabindex="0" class="btn btn-ghost lg:hidden">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					class="h-5 w-5"
 					fill="none"
 					viewBox="0 0 24 24"
 					stroke="currentColor"
-				>
-					<path
+					><path
 						stroke-linecap="round"
 						stroke-linejoin="round"
 						stroke-width="2"
 						d="M4 6h16M4 12h8m-8 6h16"
-					/>
-				</svg>
+					/></svg
+				>
 			</label>
-			<input type="checkbox" id="menu-toggle" class="hidden" />
-			<button
-				class="flex items-center"
-				on:click={openDialog}
-				type="button"
-				aria-label="Open Connection Dialog"
+			<ul
+				tabindex="0"
+				class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
 			>
-				<span class="mr-auto">Connection </span>
-				<StatusIndicator connected={$connected} />
-			</button>
+				{#each routes as route}
+					<li>
+						<NavbarLink href={route.path}>{route.name}</NavbarLink>
+					</li>
+				{/each}
+				<li class="border-t">
+					<button
+						class="flex items-center"
+						on:click={openDialog}
+						type="button"
+						aria-label="Open Connection Dialog"
+					>
+						<span class="mr-auto">Connection </span>
+						<StatusIndicator connected={$connected} />
+					</button>
+				</li>
+			</ul>
 		</div>
 		<a href="/" class="btn btn-ghost normal-case text-xl">Gig Companion</a>
 	</div>
