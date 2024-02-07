@@ -46,6 +46,18 @@ export class SetStateManager
 				this.notifyObservers({ timeMs: convertToMs(smpteTime) });
 			});
 		});
+
+		this.ableton.song.addListener('loop', (loopEnabled) => {
+			this.notifyObservers({ loopEnabled });
+		});
+
+		this.ableton.song.addListener('loop_length', (loopLength) => {
+			this.notifyObservers({ loopLength });
+		});
+
+		this.ableton.song.addListener('loop_start', (loopStart) => {
+			this.notifyObservers({ loopStart });
+		});
 	}
 
 	async handleAction(action: SetAction): Promise<boolean> {
@@ -55,6 +67,14 @@ export class SetStateManager
 			await this.ableton.song.continuePlaying();
 		} else if (action.name === 'stopPlayback') {
 			await this.ableton.song.stopPlaying();
+		} else if (action.name === 'bpm') {
+			await this.ableton.song.set('tempo', action.value);
+		} else if (action.name === 'loopEnabled') {
+			await this.ableton.song.set('loop', action.value);
+		} else if (action.name === 'loopStart') {
+			await this.ableton.song.set('loop_start', action.value);
+		} else if (action.name === 'loopLength') {
+			await this.ableton.song.set('loop_length', action.value);
 		} else {
 			console.warn(`Could not handle client message as action is not recognized`, action);
 			return false;
@@ -68,12 +88,18 @@ export class SetStateManager
 		const timeBeats = await this.ableton.song.get('current_song_time');
 		// passing 0 means that 'frames' property of returned SMPTETime object actually contains milliseconds!
 		const timeMs = convertToMs(await this.ableton.song.getCurrentSmpteSongTime(0));
+		const loopEnabled = await this.ableton.song.get('loop');
+		const loopLength = await this.ableton.song.get('loop_length');
+		const loopStart = await this.ableton.song.get('loop_start');
 		const state: SetState = {
 			connected: true,
 			playing,
 			bpm,
 			timeBeats,
-			timeMs
+			timeMs,
+			loopEnabled,
+			loopStart,
+			loopLength
 		};
 		return state;
 	}

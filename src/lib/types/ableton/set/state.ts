@@ -23,4 +23,16 @@ export type SetState = {
 	 * The current time in milliseconds.
 	 */
 	timeMs: number;
+	/**
+	 * Whether the loop is currently enabled.
+	 */
+	loopEnabled: boolean;
+	/**
+	 * Arrangement loop start in beats.
+	 */
+	loopStart: number;
+	/**
+	 * Arrangement loop length in beats.
+	 */
+	loopLength: number;
 };
