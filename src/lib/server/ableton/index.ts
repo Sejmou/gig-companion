@@ -85,12 +85,14 @@ export class AbletonSyncManager implements ScopeUpdateObserver<StateUpdateScope>
 
 	async handleClientMessage(msg: ClientActionMessage): Promise<boolean> {
 		if (this.ableton.isConnected()) {
-			console.log(`Handling client message`, msg);
+			// console.log(`Handling client action message`, msg);
 			const { scope, action } = msg;
 			if (scope === 'set') {
 				return await this.setStateManager.handleAction(action);
 			} else if (scope === 'track') {
 				return await this.trackStateManager.handleAction(action);
+			} else if (scope === 'cuepoint') {
+				return await this.cuePointStateManager.handleAction(action);
 			} else {
 				console.warn(`Could not handle client message as scope is not recognized`, msg);
 				return false;

@@ -1,12 +1,16 @@
 <script lang="ts">
-	// TODO: implement and import prevTrack function
 	import 'iconify-icon';
+	import { songNavigation } from '$lib/client/stores/ableton/derived/songs';
+
+	$: prevSong = $songNavigation.prevSong;
+	$: jumpToPrevSong = prevSong?.start.jump;
 </script>
 
 <button
 	class="btn btn-accent"
+	disabled={!prevSong}
 	on:click={() => {
-		// playing.set(!$playing);
+		jumpToPrevSong?.();
 	}}
 >
 	<iconify-icon icon="mdi:skip-previous" width="24" height="24"></iconify-icon>

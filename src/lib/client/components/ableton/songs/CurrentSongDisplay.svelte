@@ -1,11 +1,14 @@
 <script lang="ts">
 	import { cn } from '$lib/client/components/utils';
 	import type { HTMLAttributes } from 'svelte/elements';
-	import { songs } from '$lib/client/stores/ableton/derived/songs';
+	import { songs, songNavigation } from '$lib/client/stores/ableton/derived/songs';
 
 	songs.subscribe((val) => {
 		console.log('songs', val);
 	});
+
+	$: songName = $songNavigation.currentSong?.name;
+	$: console.log('songName', songName);
 
 	type $$Props = HTMLAttributes<HTMLDivElement>;
 
@@ -18,5 +21,5 @@
 
 <div class={cn('flex flex-col text-center', className)} {...$$restProps}>
 	<h6>Current Song</h6>
-	<h2>The Biggest Banger Ever</h2>
+	<h2>{songName}</h2>
 </div>

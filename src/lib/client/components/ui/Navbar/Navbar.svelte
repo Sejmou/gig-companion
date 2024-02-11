@@ -26,6 +26,10 @@
 			path: '/songs'
 		},
 		{
+			name: 'Practice Mode',
+			path: '/practice'
+		},
+		{
 			name: 'Settings',
 			path: '/settings'
 		}

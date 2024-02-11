@@ -1,6 +1,6 @@
-import type { CuePoint } from '$lib/types/ableton/cuepoint/state';
-import { cuePoints } from '../cuepoints';
-import { derived } from 'svelte/store';
+import { cuePoints, type CuePointWithActions } from '../cuepoints';
+import { derived, get } from 'svelte/store';
+import { timeBeats } from '../set';
 
 export const songs = derived(cuePoints, ($cuePoints) => {
 	const songs: Song[] = [];
@@ -78,6 +78,44 @@ export const songs = derived(cuePoints, ($cuePoints) => {
 	return songs;
 });
 
+const currentSongIdx = derived([songs, timeBeats], ([$songs, $timeBeats]) => {
+	for (let i = 0; i < $songs.length; i++) {
+		const song = $songs[i]!;
+		if ($timeBeats >= song.start.time && $timeBeats < song.end.time) {
+			return i;
+		}
+	}
+	return -1;
+});
+
+export const songNavigation = derived([songs, currentSongIdx], ([$songs, $currentSongIdx]) => {
+	if ($currentSongIdx === -1) {
+		return {
+			currentSong: undefined,
+			nextSong: undefined,
+			prevSong: undefined
+		};
+	}
+	const currentSong = $songs[$currentSongIdx];
+	const nextSong = $songs[$currentSongIdx + 1];
+	const prevSong = $songs[$currentSongIdx - 1];
+	return {
+		currentSong,
+		nextSong,
+		prevSong
+	};
+});
+
+export const setCurrentSongIdx = (idx: number) => {
+	const currentSongs = get(songs);
+	if (idx < 0 || idx >= currentSongs.length) {
+		console.warn('Invalid song index:', idx);
+		return;
+	}
+	const song = currentSongs[idx];
+	song?.start?.jump();
+};
+
 function processCuePointName(name: string) {
 	const result = {
 		level: 0,
@@ -95,13 +133,13 @@ function processCuePointName(name: string) {
 
 type Song = {
 	name: string;
-	start: CuePoint;
-	end: CuePoint;
+	start: CuePointWithActions;
+	end: CuePointWithActions;
 	sections: Section[];
 };
 
 type Section = {
 	name: string;
-	start: CuePoint;
-	end: CuePoint;
+	start: CuePointWithActions;
+	end: CuePointWithActions;
 };
