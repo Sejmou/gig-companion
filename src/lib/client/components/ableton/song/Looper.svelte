@@ -5,6 +5,7 @@
 		loopStartSection,
 		loopEndSection
 	} from '$lib/client/stores/ableton/derived/song-sections';
+	import { timeBeats } from '$lib/client/stores/ableton/set';
 
 	const handleLoopStartChange = (e: Event) => {
 		const target = e.target as HTMLSelectElement;
@@ -25,10 +26,6 @@
 			loopEnd.set(section.start.time);
 		}
 	};
-
-	$: console.log($currentSongSections);
-	$: console.log($loopStartSection);
-	$: console.log($loopEndSection);
 </script>
 
 <div class="flex flex-col md:flex-row w-full gap-2">
@@ -50,7 +47,7 @@
 		<select on:change={handleLoopEndChange} class="select select-bordered">
 			<option value={null}>Custom</option>
 			{#each $currentSongSections as song}
-				<option value={song.name}>{song.name}</option>
+				<option disabled={song.start.time <= $loopStart} value={song.name}>{song.name}</option>
 			{/each}
 		</select>
 	</label>
