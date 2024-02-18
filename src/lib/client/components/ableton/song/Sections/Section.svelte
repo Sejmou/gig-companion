@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { SongSection } from '$lib/client/stores/ableton/derived/songs';
-	import { loopStart, loopEnd, playing, timeBeats } from '$lib/client/stores/ableton/set';
+	import { playing, timeBeats } from '$lib/client/stores/ableton/set';
 	import 'iconify-icon';
 	export let section: SongSection;
 	$: name = section.name;
@@ -21,11 +21,11 @@
 				<iconify-icon icon="mdi-play-circle" width="24" height="24" class="w-6 h-6 text-primary" />
 			</button>
 		</div>
-		<div class="flex flex-row w-full justify-between">
+		<div class="flex flex-col md:flex-row w-full justify-between">
 			<p class="font-medium">{name}</p>
-			{#if progress > 0}
-				<progress class="w-[200px]" value={progress} max="1" />
-			{/if}
+			<div class="flex items-center space-x-2">
+				<progress class="progress w-full md:w-56" value={progress} max="1"></progress>
+			</div>
 		</div>
 	</div>
 </li>
