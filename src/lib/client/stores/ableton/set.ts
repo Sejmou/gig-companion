@@ -11,11 +11,22 @@ const connectedInternal = writable(false);
 const loopEnabledInternal = writable(false);
 const loopStartInternal = writable(0);
 const loopLengthInternal = writable(0);
+const recordingInternal = writable(false);
 
 export function handleSetUpdate(
 	update: ScopeStateSnapshot<'set'> | ScopeStateUpdate<'set'>
 ): boolean {
-	const { playing, timeBeats, timeMs, bpm, connected, loopEnabled, loopStart, loopLength } = update;
+	const {
+		playing,
+		timeBeats,
+		timeMs,
+		bpm,
+		connected,
+		loopEnabled,
+		loopStart,
+		loopLength,
+		recording
+	} = update;
 	let changed = false;
 	if (playing !== undefined) {
 		playingInternal.set(playing);
@@ -47,6 +58,10 @@ export function handleSetUpdate(
 	}
 	if (loopLength !== undefined) {
 		loopLengthInternal.set(loopLength);
+		changed = true;
+	}
+	if (recording !== undefined) {
+		recordingInternal.set(recording);
 		changed = true;
 	}
 	return changed;
@@ -92,6 +107,24 @@ function createPlayingStore() {
 	};
 }
 
+function createRecordingStore() {
+	const { subscribe, update } = recordingInternal;
+
+	const set = (newValue: boolean) => {
+		const action: ScopeAction<'set'> = {
+			name: 'recording',
+			value: newValue
+		};
+		sendSetAction(action);
+	};
+
+	return {
+		subscribe,
+		set,
+		update
+	};
+}
+
 export const playing = createPlayingStore();
 export const playMode = writable<'continue' | 'start'>('start');
 export const playModes = [
@@ -104,6 +137,8 @@ export const playModes = [
 		label: 'Always start from marker position'
 	}
 ] as const;
+
+export const recording = createRecordingStore();
 
 /**
  * The current time in the Ableton Live set, measured in beats.

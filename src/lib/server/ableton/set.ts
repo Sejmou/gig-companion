@@ -58,6 +58,13 @@ export class SetStateManager
 		this.ableton.song.addListener('loop_start', (loopStart) => {
 			this.notifyObservers({ loopStart });
 		});
+
+		this.ableton.song.addListener('record_mode', (recordingNum) => {
+			// experiments have shown that at runtime, the value is actually a boolean; still, to be safe, we convert it to a boolean like so:
+			console.log('recordingNum', recordingNum);
+			const recording = !!recordingNum;
+			this.notifyObservers({ recording });
+		});
 	}
 
 	async handleAction(action: SetAction): Promise<boolean> {
@@ -75,6 +82,8 @@ export class SetStateManager
 			await this.ableton.song.set('loop_start', action.value);
 		} else if (action.name === 'loopLength') {
 			await this.ableton.song.set('loop_length', action.value);
+		} else if (action.name === 'recording') {
+			await this.ableton.song.set('record_mode', action.value ? 1 : 0);
 		} else {
 			console.warn(`Could not handle client message as action is not recognized`, action);
 			return false;
@@ -91,6 +100,7 @@ export class SetStateManager
 		const loopEnabled = await this.ableton.song.get('loop');
 		const loopLength = await this.ableton.song.get('loop_length');
 		const loopStart = await this.ableton.song.get('loop_start');
+		const recording = (await this.ableton.song.get('record_mode')) == 1;
 		const state: SetState = {
 			connected: true,
 			playing,
@@ -99,7 +109,8 @@ export class SetStateManager
 			timeMs,
 			loopEnabled,
 			loopStart,
-			loopLength
+			loopLength,
+			recording
 		};
 		return state;
 	}

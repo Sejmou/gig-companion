@@ -12,6 +12,10 @@ export type SetState = {
 	 */
 	playing: boolean;
 	/**
+	 * Whether Ableton Live is currently recording.
+	 */
+	recording: boolean;
+	/**
 	 * The current tempo in beats per minute.
 	 */
 	bpm: number;
