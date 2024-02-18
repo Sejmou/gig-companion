@@ -65,6 +65,11 @@ export class SetStateManager
 			const recording = !!recordingNum;
 			this.notifyObservers({ recording });
 		});
+
+		this.ableton.song.addListener('count_in_duration', (countInDurationIndex) => {
+			const countInDuration = countInDurationIndexToValue(countInDurationIndex);
+			this.notifyObservers({ countInDuration });
+		});
 	}
 
 	async handleAction(action: SetAction): Promise<boolean> {
@@ -84,6 +89,17 @@ export class SetStateManager
 			await this.ableton.song.set('loop_length', action.value);
 		} else if (action.name === 'recording') {
 			await this.ableton.song.set('record_mode', action.value ? 1 : 0);
+		} else if (action.name === 'countInDuration') {
+			const index = countInDurationValueToIndex(action.value);
+			console.warn(
+				'received countInDuration action',
+				action.value,
+				'index would be',
+				index,
+				'have to ignore as it is not supported by AbletonJS yet apparently'
+			);
+			// crashes the app atm
+			// await this.ableton.song.set('count_in_duration', countInDurationValueToIndex(action.value));
 		} else {
 			console.warn(`Could not handle client message as action is not recognized`, action);
 			return false;
@@ -101,6 +117,9 @@ export class SetStateManager
 		const loopLength = await this.ableton.song.get('loop_length');
 		const loopStart = await this.ableton.song.get('loop_start');
 		const recording = (await this.ableton.song.get('record_mode')) == 1;
+		const countInDuration = countInDurationIndexToValue(
+			await this.ableton.song.get('count_in_duration')
+		);
 		const state: SetState = {
 			connected: true,
 			playing,
@@ -110,9 +129,40 @@ export class SetStateManager
 			loopEnabled,
 			loopStart,
 			loopLength,
-			recording
+			recording,
+			countInDuration
 		};
 		return state;
+	}
+}
+
+function countInDurationIndexToValue(index: number): 0 | 1 | 2 | 4 {
+	switch (index) {
+		case 0:
+			return 0;
+		case 1:
+			return 1;
+		case 2:
+			return 2;
+		case 3:
+			return 4;
+		default:
+			throw new Error(`Invalid count-in duration index: ${index}`);
+	}
+}
+
+function countInDurationValueToIndex(value: 0 | 1 | 2 | 4): number {
+	switch (value) {
+		case 0:
+			return 0;
+		case 1:
+			return 1;
+		case 2:
+			return 2;
+		case 4:
+			return 3;
+		default:
+			throw new Error(`Invalid count-in duration value: ${value}`);
 	}
 }
 

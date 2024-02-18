@@ -12,6 +12,7 @@ const loopEnabledInternal = writable(false);
 const loopStartInternal = writable(0);
 const loopLengthInternal = writable(0);
 const recordingInternal = writable(false);
+const countInDurationInternal = writable<0 | 1 | 2 | 4>(0);
 
 export function handleSetUpdate(
 	update: ScopeStateSnapshot<'set'> | ScopeStateUpdate<'set'>
@@ -25,7 +26,8 @@ export function handleSetUpdate(
 		loopEnabled,
 		loopStart,
 		loopLength,
-		recording
+		recording,
+		countInDuration
 	} = update;
 	let changed = false;
 	if (playing !== undefined) {
@@ -62,6 +64,10 @@ export function handleSetUpdate(
 	}
 	if (recording !== undefined) {
 		recordingInternal.set(recording);
+		changed = true;
+	}
+	if (countInDuration !== undefined) {
+		countInDurationInternal.set(countInDuration);
 		changed = true;
 	}
 	return changed;
@@ -113,6 +119,24 @@ function createRecordingStore() {
 	const set = (newValue: boolean) => {
 		const action: ScopeAction<'set'> = {
 			name: 'recording',
+			value: newValue
+		};
+		sendSetAction(action);
+	};
+
+	return {
+		subscribe,
+		set,
+		update
+	};
+}
+
+function createCountInDurationStore() {
+	const { subscribe, update } = countInDurationInternal;
+
+	const set = (newValue: 0 | 1 | 2 | 4) => {
+		const action: ScopeAction<'set'> = {
+			name: 'countInDuration',
 			value: newValue
 		};
 		sendSetAction(action);
@@ -251,3 +275,8 @@ function createLoopEndStore() {
  * Arrangement loop end in beats.
  */
 export const loopEnd = createLoopEndStore();
+
+/**
+ * The duration of the Metronome's Count-In setting (in bars).
+ */
+export const countInDuration = createCountInDurationStore();

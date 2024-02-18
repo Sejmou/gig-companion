@@ -15,7 +15,7 @@ type StopPlayback = {
 // TODO: think about other props that could be updated by the client potentially
 type UpdateableSetState = Pick<
 	SetState,
-	'bpm' | 'loopEnabled' | 'loopStart' | 'loopLength' | 'recording'
+	'bpm' | 'loopEnabled' | 'loopStart' | 'loopLength' | 'recording' | 'countInDuration'
 >;
 
 type SetStateUpdate = {

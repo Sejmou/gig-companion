@@ -39,4 +39,8 @@ export type SetState = {
 	 * Arrangement loop length in beats.
 	 */
 	loopLength: number;
+	/**
+	 * The duration of the Metronome's Count-In setting (in bars).
+	 */
+	countInDuration: 0 | 1 | 2 | 4;
 };

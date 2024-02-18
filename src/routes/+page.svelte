@@ -4,6 +4,7 @@
 	import SongPlayback from './SongPlayback.svelte';
 	import LoopSettings from '$lib/client/components/ableton/song/LoopSettings.svelte';
 	import { loopEnabled } from '$lib/client/stores/ableton/set';
+	import RecordingSettings from '$lib/client/components/ableton/set/RecordingSettings.svelte';
 </script>
 
 <svelte:head>
@@ -31,6 +32,12 @@
 			<div class="card-body">
 				<h2 class="card-title">Backing Tracks</h2>
 				<BackingTracks />
+			</div>
+		</div>
+		<div class="card bg-base-100">
+			<div class="card-body">
+				<h2 class="card-title">Recording Settings</h2>
+				<RecordingSettings />
 			</div>
 		</div>
 	</div>
