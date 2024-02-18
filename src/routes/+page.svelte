@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BackingTracks from '$lib/client/components/ableton/backing-tracks/BackingTracks.svelte';
 	import Sounds from '$lib/client/components/ableton/sounds/Sounds.svelte';
 	import SongPlayback from './SongPlayback.svelte';
 	// import TimeDisplay from '$lib/client/components/ableton/set/TimeDisplay.svelte';
@@ -12,5 +13,6 @@
 	<SongPlayback />
 	<!-- TODO: comment out once I figure out how to display actual time in seconds -->
 	<!-- <TimeDisplay /> -->
+	<BackingTracks />
 	<Sounds />
 </main>

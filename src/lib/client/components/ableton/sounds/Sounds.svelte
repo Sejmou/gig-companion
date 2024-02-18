@@ -2,7 +2,7 @@
 	import { currentSong } from '$lib/client/stores/ableton/derived/songs';
 	import { songSounds, type SongSounds } from '$lib/client/stores/ableton/derived/sounds';
 	import { get } from 'svelte/store';
-	import Sound from './Sound.svelte';
+	import MidiOrAudioTrack from '$lib/client/components/ableton/tracks/MidiOrAudioTrack.svelte';
 
 	let currentSongSounds: SongSounds | undefined = undefined;
 	let otherSounds = [];
@@ -23,7 +23,7 @@
 		<h3>Sounds</h3>
 		<div class="flex flex-col gap-2">
 			{#each audioTracks as track}
-				<Sound {track} />
+				<MidiOrAudioTrack {track} />
 			{/each}
 		</div>
 	</div>
