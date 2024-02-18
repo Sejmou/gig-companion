@@ -1,8 +1,8 @@
 <!-- A component with 'generic' controls for tracks shared between both GroupTracks and MidiOrAudioTracks -->
 <script lang="ts">
 	import 'iconify-icon';
-	import type { MidiOrAudioTrackState } from '$lib/client/stores/ableton/track';
-	export let track: MidiOrAudioTrackState;
+	import type { GroupTrackState } from '$lib/client/stores/ableton/track';
+	export let track: GroupTrackState;
 	$: muted = track.muted;
 	$: soloed = track.soloed;
 </script>
