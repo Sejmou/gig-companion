@@ -135,10 +135,10 @@ type Song = {
 	name: string;
 	start: CuePointWithActions;
 	end: CuePointWithActions;
-	sections: Section[];
+	sections: SongSection[];
 };
 
-type Section = {
+export type SongSection = {
 	name: string;
 	start: CuePointWithActions;
 	end: CuePointWithActions;
