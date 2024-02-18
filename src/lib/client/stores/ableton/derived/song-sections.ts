@@ -1,12 +1,12 @@
-import { songNavigation } from './songs';
+import { currentSong } from './songs';
 import { loopStart, loopEnd } from '../set';
 import { derived } from 'svelte/store';
 
-export const currentSongSections = derived(songNavigation, ($songNavigation) => {
-	if ($songNavigation.currentSong === undefined) {
+export const currentSongSections = derived(currentSong, ($currentSong) => {
+	if ($currentSong === undefined) {
 		return [];
 	}
-	return $songNavigation.currentSong.sections;
+	return $currentSong.sections;
 });
 
 const SECTION_MAX_DISTANCE = 0.5;

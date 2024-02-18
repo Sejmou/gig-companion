@@ -1,9 +1,7 @@
 <script lang="ts">
 	import 'iconify-icon';
-	import { songNavigation } from '$lib/client/stores/ableton/derived/songs';
-
-	$: nextSong = $songNavigation.nextSong;
-	$: jumpToNextSong = nextSong?.start.jump;
+	import { nextSong } from '$lib/client/stores/ableton/derived/songs';
+	$: jumpToNextSong = $nextSong?.start.jump;
 </script>
 
 <button

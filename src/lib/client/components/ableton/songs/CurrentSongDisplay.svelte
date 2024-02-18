@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { cn } from '$lib/client/components/utils';
 	import type { HTMLAttributes } from 'svelte/elements';
-	import { songs, songNavigation } from '$lib/client/stores/ableton/derived/songs';
+	import { songs, currentSong } from '$lib/client/stores/ableton/derived/songs';
 
 	songs.subscribe((val) => {
 		console.log('songs', val);
 	});
 
-	$: songName = $songNavigation.currentSong?.name;
+	$: songName = $currentSong?.name;
 	$: console.log('songName', songName);
 
 	type $$Props = HTMLAttributes<HTMLDivElement>;

@@ -88,22 +88,22 @@ const currentSongIdx = derived([songs, timeBeats], ([$songs, $timeBeats]) => {
 	return -1;
 });
 
-export const songNavigation = derived([songs, currentSongIdx], ([$songs, $currentSongIdx]) => {
+export const currentSong = derived([songs, currentSongIdx], ([$songs, $currentSongIdx]) => {
+	return $currentSongIdx === -1 ? undefined : $songs[$currentSongIdx];
+});
+
+export const nextSong = derived([songs, currentSongIdx], ([$songs, $currentSongIdx]) => {
 	if ($currentSongIdx === -1) {
-		return {
-			currentSong: undefined,
-			nextSong: undefined,
-			prevSong: undefined
-		};
+		return undefined;
 	}
-	const currentSong = $songs[$currentSongIdx];
-	const nextSong = $songs[$currentSongIdx + 1];
-	const prevSong = $songs[$currentSongIdx - 1];
-	return {
-		currentSong,
-		nextSong,
-		prevSong
-	};
+	return $songs[$currentSongIdx + 1];
+});
+
+export const prevSong = derived([songs, currentSongIdx], ([$songs, $currentSongIdx]) => {
+	if ($currentSongIdx === -1) {
+		return undefined;
+	}
+	return $songs[$currentSongIdx - 1];
 });
 
 export const setCurrentSongIdx = (idx: number) => {

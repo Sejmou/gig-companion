@@ -47,6 +47,14 @@ rootTracks.subscribe((tracks) => {
 	}
 });
 
+export function getGroupTrackState(id: string): GroupTrackState | undefined {
+	return groupTrackStates.get(id);
+}
+
+export function getMidiOrAudioTrackState(id: string): MidiOrAudioTrackState | undefined {
+	return midiOrAudioTrackStates.get(id);
+}
+
 export function getTrackState(id: string): GroupTrackState | MidiOrAudioTrackState | undefined {
 	const state = groupTrackStates.get(id) ?? midiOrAudioTrackStates.get(id);
 	return state;
@@ -241,11 +249,11 @@ type CombinedType<A, B> = {
 
 // I absolutely HATE what I did here, but I don't know how to do it better atm
 // I don't really know how to handle nested children properly, so I am using ids instead for now.
-type GroupTrackState = CombinedType<
+export type GroupTrackState = CombinedType<
 	Omit<GroupTrack, 'children'> & { childIds: string[] },
 	GroupTrackStores
 >;
-type MidiOrAudioTrackState = CombinedType<MidiOrAudioTrack, MidiOrAudioTrackStores>;
+export type MidiOrAudioTrackState = CombinedType<MidiOrAudioTrack, MidiOrAudioTrackStores>;
 
 // I absolutely HATE what I did here, but I don't know how to do it better atm
 type ObservableGroupTrackStateProps = Required<
