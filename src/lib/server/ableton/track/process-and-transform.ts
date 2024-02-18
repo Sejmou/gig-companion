@@ -165,9 +165,9 @@ async function processTrack(
 }
 
 export const numberToMonitoringState = new TwoWayMap<number, MidiOrAudioTrack['monitoringState']>([
-	[0, 'off'],
-	[1, 'in'],
-	[2, 'auto']
+	[0, 'in'],
+	[1, 'auto'],
+	[2, 'off']
 ]);
 
 type TempBaseTrack = BaseTrack & {

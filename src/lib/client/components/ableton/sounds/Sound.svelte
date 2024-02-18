@@ -1,10 +1,11 @@
 <!-- 
-	Component to display a MidiOrAudioTrackState. Compared to the Track component, this one has an additional button to arm the track for recording.
+	A modified version of MidiOrAudioTrack that adds a button to 'use a sound'. The parent component will handle the logic of activating the sound and deactivating all other sounds.
  -->
 <script lang="ts">
 	import 'iconify-icon';
 	import type { MidiOrAudioTrackState } from '$lib/client/stores/ableton/track';
 	export let track: MidiOrAudioTrackState;
+	export let onUse: (track: MidiOrAudioTrackState) => void;
 	export let hideArmButton = false;
 	$: muted = track.muted;
 	$: soloed = track.soloed;
@@ -19,8 +20,11 @@
 	}
 </script>
 
-<div class="w-full flex flex-wrap gap-2 justify-between items-center">
-	{track.name}
+<div class="w-full flex-wrap gap-2 flex justify-between items-center">
+	<div class="flex gap-2 items-center">
+		<span>{track.name}</span>
+		<button class="btn" on:click={() => onUse(track)}>Use</button>
+	</div>
 	<div class="flex gap-2">
 		<select
 			value={$monitoringState}
