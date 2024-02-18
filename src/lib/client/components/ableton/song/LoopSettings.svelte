@@ -1,11 +1,6 @@
 <script lang="ts">
 	import { loopStart, loopEnd } from '$lib/client/stores/ableton/set';
-	import {
-		currentSongSections,
-		loopStartSection,
-		loopEndSection
-	} from '$lib/client/stores/ableton/derived/song-sections';
-	import { timeBeats } from '$lib/client/stores/ableton/set';
+	import { currentSongSections } from '$lib/client/stores/ableton/derived/song-sections';
 
 	const handleLoopStartChange = (e: Event) => {
 		const target = e.target as HTMLSelectElement;

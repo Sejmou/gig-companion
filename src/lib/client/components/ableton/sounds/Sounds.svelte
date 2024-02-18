@@ -1,29 +1,36 @@
 <script lang="ts">
 	import { currentSong } from '$lib/client/stores/ableton/derived/songs';
-	import { songSounds, type SongSounds } from '$lib/client/stores/ableton/derived/sounds';
+	import { songSounds } from '$lib/client/stores/ableton/derived/sounds';
 	import { get } from 'svelte/store';
+	import { onDestroy } from 'svelte';
 	import MidiOrAudioTrack from '$lib/client/components/ableton/tracks/MidiOrAudioTrack.svelte';
+	import type { GroupTrackState, MidiOrAudioTrackState } from '$lib/client/stores/ableton/track';
 
-	let currentSongSounds: SongSounds | undefined = undefined;
-	let otherSounds = [];
-	currentSong.subscribe((newSong) => {
+	let audioTracks: MidiOrAudioTrackState[] = [];
+	let groupTrack: GroupTrackState | undefined = undefined;
+	let tracksFromOtherSongs: (GroupTrackState | MidiOrAudioTrackState)[] = [];
+
+	const unsubscribe = currentSong.subscribe((newSong) => {
 		const sounds = get(songSounds);
-		currentSongSounds = newSong ? sounds.get(newSong.name) : undefined;
-		const allSongSounds = Array.from(sounds.values());
-		otherSounds = allSongSounds.filter((sounds) => sounds !== currentSongSounds);
-		console.log({ currentSongSounds, otherSounds });
+		const current = newSong ? sounds.get(newSong.name) : undefined;
+		const all = Array.from(sounds.values());
+		const other = all.filter((sounds) => sounds !== current);
+		audioTracks = current?.audioTracks ?? [];
+		groupTrack = current?.groupTrack;
+		tracksFromOtherSongs = other.flatMap((sounds) => [sounds.groupTrack, ...sounds.audioTracks]);
 	});
-	$: groupTrack = currentSongSounds ? currentSongSounds.groupTrack : undefined;
-	$: audioTracks = currentSongSounds ? currentSongSounds.audioTracks : undefined;
-	$: console.log({ groupTrack, audioTracks });
+	onDestroy(unsubscribe);
+
+	$: console.log({ audioTracks, groupTrack, tracksFromOtherSongs });
 </script>
 
 {#if groupTrack && audioTracks}
 	<div class="flex flex-col w-full">
-		<h3>Sounds</h3>
-		<div class="flex flex-col gap-2">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
 			{#each audioTracks as track}
-				<MidiOrAudioTrack {track} />
+				<div class="w-full border rounded-lg p-1 pl-4">
+					<MidiOrAudioTrack {track} />
+				</div>
 			{/each}
 		</div>
 	</div>
