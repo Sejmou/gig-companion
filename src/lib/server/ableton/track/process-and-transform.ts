@@ -6,8 +6,10 @@ import type {
 	GroupTrack,
 	MidiOrAudioTrack,
 	Track,
-	BaseTrack
+	BaseTrack,
+	Device
 } from '$lib/types/ableton/track/state';
+import type { Device as AbletonDevice } from 'ableton-js/ns/device';
 
 export function convertToClientRootTracks(rootTracks: ServerTrack[]): Track[] {
 	const result: Track[] = [];
@@ -19,13 +21,14 @@ export function convertToClientRootTracks(rootTracks: ServerTrack[]): Track[] {
 
 function convertToClientRootTrack(trackTreeNode: ServerTrack): Track {
 	const serverTrack = trackTreeNode;
-	const { id, muted, name, soloed, type, parentId } = serverTrack;
+	const { id, muted, name, soloed, type, parentId, devices } = serverTrack;
 	const clientTrack: BaseTrack = {
 		id,
 		name,
 		muted,
 		soloed,
-		parentId
+		parentId,
+		devices
 	};
 	if (type === 'group') {
 		const groupTrack = serverTrack;
@@ -129,6 +132,7 @@ async function processTrack(
 	const muted = await raw.get('mute');
 	// not sure why this is not a boolean
 	const soloed = Boolean(await raw.get('solo'));
+	const devices = await processTrackDevices(raw);
 
 	const baseTrack: TempBaseTrack = {
 		id,
@@ -136,7 +140,8 @@ async function processTrack(
 		parentId,
 		muted,
 		soloed,
-		raw
+		raw,
+		devices
 	};
 
 	if (!canBeArmed) {
@@ -162,6 +167,18 @@ async function processTrack(
 	};
 
 	return midiOrAudioTrack;
+}
+
+async function processTrackDevices(raw: AbletonTrack): Promise<Device[]> {
+	const abletonDevices = await raw.get('devices');
+	const devices = await Promise.all(abletonDevices.map(processTrackDevice));
+	return devices;
+}
+
+async function processTrackDevice(device: AbletonDevice): Promise<Device> {
+	const active = await device.get('is_active');
+	const name = await device.get('name');
+	return { name, active };
 }
 
 export const numberToMonitoringState = new TwoWayMap<number, MidiOrAudioTrack['monitoringState']>([

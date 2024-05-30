@@ -25,10 +25,15 @@ export type GroupTrack = BaseTrack & {
 export type BaseTrack = {
 	id: string; // not observable, but needs to be present to uniquely identify update
 	name: string; // not observable
-	// devices: Device[]; // TODO: implement support for this
+	devices: Device[]; // TODO: implement support for this
 	parentId?: string; // not observable
 	muted: boolean;
 	soloed: boolean;
+};
+
+export type Device = {
+	name: string;
+	active: boolean;
 };
 
 /**

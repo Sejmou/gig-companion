@@ -168,11 +168,13 @@ function createGroupTrackManagementTools(track: GroupTrack): {
 	const { id, type } = track;
 	const stores = {
 		muted: createWebSocketServerSyncedTrackPropStore(id, type, 'muted', track.muted),
-		soloed: createWebSocketServerSyncedTrackPropStore(id, type, 'soloed', track.soloed)
+		soloed: createWebSocketServerSyncedTrackPropStore(id, type, 'soloed', track.soloed),
+		devices: createWebSocketServerSyncedTrackPropStore(id, type, 'devices', track.devices)
 	} satisfies GroupTrackStores;
 	const updaters: GroupTrackStoreUpdaters = {
 		muted: stores.muted.realSet,
-		soloed: stores.soloed.realSet
+		soloed: stores.soloed.realSet,
+		devices: stores.devices.realSet
 	} satisfies GroupTrackStoreUpdaters;
 	return { stores, updaters };
 }
@@ -191,13 +193,15 @@ function createMidiOrAudioTrackManagementTools(track: MidiOrAudioTrack): {
 			type,
 			'monitoringState',
 			track.monitoringState
-		)
+		),
+		devices: createWebSocketServerSyncedTrackPropStore(id, type, 'devices', track.devices)
 	} satisfies MidiOrAudioTrackStores;
 	const updaters: MidiOrAudioTrackStoreUpdaters = {
 		muted: stores.muted.realSet,
 		soloed: stores.soloed.realSet,
 		armed: stores.armed.realSet,
-		monitoringState: stores.monitoringState.realSet
+		monitoringState: stores.monitoringState.realSet,
+		devices: stores.devices.realSet
 	} satisfies MidiOrAudioTrackStoreUpdaters;
 	return { stores, updaters };
 }

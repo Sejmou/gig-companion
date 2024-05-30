@@ -4,6 +4,7 @@
 <script lang="ts">
 	import 'iconify-icon';
 	import type { MidiOrAudioTrackState } from '$lib/client/stores/ableton/track';
+	import { onDestroy } from 'svelte';
 	export let track: MidiOrAudioTrackState;
 	export let onUse: (track: MidiOrAudioTrackState) => void;
 	export let hideArmButton = false;
@@ -18,6 +19,14 @@
 		const value = select.value as 'in' | 'auto' | 'off';
 		track.monitoringState.set(value);
 	}
+
+	const unsubscribe = track.devices.subscribe((newDevices) => {
+		console.log(`devices for ${track.name}:`, newDevices);
+	});
+
+	onDestroy(() => {
+		unsubscribe();
+	});
 </script>
 
 <div class="w-full flex-wrap gap-2 flex justify-between items-center">
