@@ -9,16 +9,18 @@ import {
 } from '../track';
 
 const songSoundsGroupTrackName = 'Song Sounds';
+export const songSoundsGroup = derived(rootTracks, ($rootTracks) => {
+	return $rootTracks.find((track) => track.name === songSoundsGroupTrackName);
+});
 
-export const songSounds = derived([rootTracks, songs], ([$rootTracks, $songs]) => {
-	const songSoundsGroup = $rootTracks.find((track) => track.name === songSoundsGroupTrackName);
+export const songSounds = derived([songSoundsGroup, songs], ([$songSoundsGroup, $songs]) => {
 	const songSounds = new Map<string, SongSounds>();
-	if (!songSoundsGroup) {
+	if (!$songSoundsGroup) {
 		console.warn(`Cannot get sounds: No track with name '${songSoundsGroupTrackName}' found`);
 		// return empty map
 		return songSounds;
 	}
-	if (songSoundsGroup.type !== 'group') {
+	if ($songSoundsGroup.type !== 'group') {
 		console.warn(
 			`Cannot get sounds: Track with name '${songSoundsGroupTrackName}' is not a group track`
 		);
@@ -27,7 +29,7 @@ export const songSounds = derived([rootTracks, songs], ([$rootTracks, $songs]) =
 	}
 
 	const sounds: SongSounds[] = [];
-	for (const track of songSoundsGroup.children) {
+	for (const track of $songSoundsGroup.children) {
 		if (track.type === 'midiOrAudio') {
 			console.warn('Unexpected midiOrAudio track in sounds group track', track.name);
 			continue;

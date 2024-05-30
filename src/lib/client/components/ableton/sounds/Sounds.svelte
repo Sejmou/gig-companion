@@ -6,14 +6,14 @@
 	import type { GroupTrackState, MidiOrAudioTrackState } from '$lib/client/stores/ableton/track';
 	import Sound from './Sound.svelte';
 
-	let tracksForSounds: MidiOrAudioTrackState[] = [];
-	let groupTrack: GroupTrackState | undefined = undefined;
+	let currentAudioTracks: MidiOrAudioTrackState[] = [];
+	let currentGroupTrack: GroupTrackState | undefined = undefined;
 	let tracksFromOtherSongs: (GroupTrackState | MidiOrAudioTrackState)[] = [];
 
 	function useSound(sound: MidiOrAudioTrackState) {
 		sound.armed.set(true);
 		sound.monitoringState.set('in');
-		const otherSounds = tracksForSounds.filter((track) => track !== sound);
+		const otherSounds = currentAudioTracks.filter((track) => track !== sound);
 		for (const other of otherSounds) {
 			other.armed.set(false);
 			other.monitoringState.set('auto');
@@ -21,32 +21,47 @@
 	}
 
 	const currentSongUnsubscriber = currentSong.subscribe((newSong) => {
-		const sounds = get(songSounds);
-		const current = newSong ? sounds.get(newSong.name) : undefined;
-		const all = Array.from(sounds.values());
-		const other = all.filter((sounds) => sounds !== current);
-		tracksForSounds = current?.audioTracks ?? [];
-		groupTrack = current?.groupTrack;
-		tracksFromOtherSongs = other.flatMap((sounds) => [sounds.groupTrack, ...sounds.audioTracks]);
+		const allSoundsMap = get(songSounds);
+		console.log(allSoundsMap);
+		const currentSounds = newSong ? allSoundsMap.get(newSong.name) : undefined;
+		const allSounds = Array.from(allSoundsMap.values());
+		const soundsForOthers = allSounds.filter((sounds) => sounds !== currentSounds);
+		currentAudioTracks = currentSounds?.audioTracks ?? [];
+		currentGroupTrack = currentSounds?.groupTrack;
+
+		// mute/deactivate/reset other tracks
+		tracksFromOtherSongs = soundsForOthers.flatMap((sounds) => [
+			sounds.groupTrack,
+			...sounds.audioTracks
+		]);
 		tracksFromOtherSongs.forEach((track) => {
 			if (track.type === 'midiOrAudio') {
 				track.armed.set(false);
 				track.monitoringState.set('auto');
+			} else if (track.type === 'group') {
+				track.muted.set(true);
 			}
 		});
-		if (tracksForSounds[0]) useSound(tracksForSounds[0]);
+
+		// activate current tracks
+		currentGroupTrack?.muted.set(false);
+		if (currentAudioTracks[0]) useSound(currentAudioTracks[0]);
 	});
 	onDestroy(() => {
 		currentSongUnsubscriber();
 	});
 
-	$: console.log({ audioTracks: tracksForSounds, groupTrack, tracksFromOtherSongs });
+	$: console.log({
+		audioTracks: currentAudioTracks,
+		groupTrack: currentGroupTrack,
+		tracksFromOtherSongs
+	});
 </script>
 
-{#if groupTrack && tracksForSounds}
+{#if currentGroupTrack && currentAudioTracks}
 	<div class="flex flex-col w-full">
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
-			{#each tracksForSounds as track}
+			{#each currentAudioTracks as track}
 				<div class="w-full border rounded-lg p-1 pl-4">
 					<Sound {track} onUse={useSound} />
 				</div>
