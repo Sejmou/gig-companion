@@ -28,6 +28,13 @@
 		tracksForSounds = current?.audioTracks ?? [];
 		groupTrack = current?.groupTrack;
 		tracksFromOtherSongs = other.flatMap((sounds) => [sounds.groupTrack, ...sounds.audioTracks]);
+		tracksFromOtherSongs.forEach((track) => {
+			if (track.type === 'midiOrAudio') {
+				track.armed.set(false);
+				track.monitoringState.set('auto');
+			}
+		});
+		if (tracksForSounds[0]) useSound(tracksForSounds[0]);
 	});
 	onDestroy(() => {
 		currentSongUnsubscriber();

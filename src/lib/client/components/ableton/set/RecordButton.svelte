@@ -4,7 +4,7 @@
 </script>
 
 <button
-	class="btn btn-accent"
+	class="btn"
 	class:btn-error={$recording}
 	on:click={() => {
 		recording.set(!$recording);
