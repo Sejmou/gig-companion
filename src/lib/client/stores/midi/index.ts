@@ -1,4 +1,4 @@
-import { derived, writable } from 'svelte/store';
+import { derived, get, writable } from 'svelte/store';
 import { persisted } from 'svelte-persisted-store';
 import { browser } from '$app/environment';
 
@@ -45,7 +45,33 @@ export const currentMidiInputMeta = derived(midiInputMeta, ($midiInputMeta) => $
 export const currentMidiInput = derived(
 	[midiInputs, midiInputMeta],
 	([$midiInputs, $midiInputMeta]) => {
-		if ($midiInputMeta === null) return null;
-		return $midiInputs.find((input) => input.id === $midiInputMeta.id);
+		removeCurrentInputListener();
+		if ($midiInputMeta === null) {
+			return null;
+		}
+		const input = $midiInputs.find((input) => input.id === $midiInputMeta.id);
+		if (input) {
+			addListener(input);
+			return input;
+		}
 	}
 );
+
+function handleMidiMessage(event: MIDIMessageEvent) {
+	console.log('MIDI message received', event.data);
+}
+
+function addListener(input: MIDIInput) {
+	input.addEventListener('midimessage', handleMidiMessage);
+	console.log('MIDI input listener added for input with ID', input.id);
+}
+
+/**
+ * call this BEFORE changing the current MIDI input. Otherwise we would still listen to messages from the old input after the change
+ */
+function removeCurrentInputListener() {
+	const currentInput = get(currentMidiInput);
+	if (!currentInput) return;
+	currentInput.removeEventListener('midimessage', handleMidiMessage);
+	console.log('MIDI input listener remove for input with ID', currentInput.id);
+}
