@@ -7,6 +7,7 @@ import {
 	type GroupTrackState,
 	type MidiOrAudioTrackState
 } from '../track';
+import { currentSongName } from './songs';
 
 const songSoundsGroupTrackName = 'Song Sounds';
 export const songSoundsGroup = derived(rootTracks, ($rootTracks) => {
@@ -71,6 +72,63 @@ export const songSounds = derived([songSoundsGroup, songs], ([$songSoundsGroup, 
 	}
 	return songSounds;
 });
+
+export const currentSongSounds = derived(
+	[songSounds, currentSongName],
+	([$songSounds, $songName]) => {
+		if (!$songName) {
+			return null;
+		}
+		return $songSounds.get($songName) ?? null;
+	}
+);
+
+export const currentSoundsAudioTracks = derived(
+	currentSongSounds,
+	($currentSongSounds) => $currentSongSounds?.audioTracks ?? []
+);
+export const currentSoundsGroupTrack = derived(
+	currentSongSounds,
+	($currentSongSounds) => $currentSongSounds?.groupTrack
+);
+
+export const soundsForOtherSongs = derived(
+	[songSounds, currentSongName],
+	([$songSounds, $songName]) => {
+		if (!$songName) {
+			return Array.from($songSounds.values());
+		}
+		const allSounds = Array.from($songSounds.values());
+		const soundsForOthers = allSounds.filter((sounds) => sounds.groupTrack.name !== $songName);
+		return soundsForOthers;
+	}
+);
+
+export const currentSound = derived(currentSoundsAudioTracks, ($currentAudioTracks) => {
+	return $currentAudioTracks.find((track) => track.armed);
+});
+
+export const nextSound = derived(
+	[currentSound, currentSoundsAudioTracks],
+	([$currentSound, $currentAudioTracks]) => {
+		const currentSoundIdx = $currentAudioTracks.findIndex((sound) => sound === $currentSound);
+		if (currentSoundIdx === -1) {
+			return null;
+		}
+		return $currentAudioTracks[currentSoundIdx + 1] ?? null;
+	}
+);
+
+export const prevSound = derived(
+	[currentSound, currentSoundsAudioTracks],
+	([$currentSound, $currentSoundsAudioTracks]) => {
+		const currentSoundIdx = $currentSoundsAudioTracks.findIndex((sound) => sound === $currentSound);
+		if (currentSoundIdx === -1) {
+			return null;
+		}
+		return $currentSoundsAudioTracks[currentSoundIdx - 1] ?? null;
+	}
+);
 
 export type SongSounds = {
 	groupTrack: GroupTrackState;

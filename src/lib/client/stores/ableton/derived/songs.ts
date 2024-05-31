@@ -91,6 +91,7 @@ const currentSongIdx = derived([songs, timeBeats], ([$songs, $timeBeats]) => {
 export const currentSong = derived([songs, currentSongIdx], ([$songs, $currentSongIdx]) => {
 	return $currentSongIdx === -1 ? undefined : $songs[$currentSongIdx];
 });
+export const currentSongName = derived(currentSong, ($currentSong) => $currentSong?.name);
 
 export const nextSong = derived([songs, currentSongIdx], ([$songs, $currentSongIdx]) => {
 	if ($currentSongIdx === -1) {
@@ -131,7 +132,7 @@ function processCuePointName(name: string) {
 	return result;
 }
 
-type Song = {
+export type Song = {
 	name: string;
 	start: CuePointWithActions;
 	end: CuePointWithActions;
