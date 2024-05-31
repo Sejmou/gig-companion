@@ -5,6 +5,10 @@
 	import 'iconify-icon';
 </script>
 
+<svelte:head>
+	<title>Gig Companion</title>
+</svelte:head>
+
 <div class="flex flex-col min-h-[100vh] bg-base-200">
 	<Navbar />
 	<main class="flex-1 flex flex-col p-4 w-full max-w-screen-lg mx-auto my-auto box-border">

@@ -6,6 +6,7 @@
 	import { loopEnabled } from '$lib/client/stores/ableton/set';
 	import RecordingSettings from '$lib/client/components/ableton/set/RecordingSettings.svelte';
 	import Sections from '$lib/client/components/ableton/song/Sections/Sections.svelte';
+	import { currentSongSections } from '$lib/client/stores/ableton/derived/song-sections';
 </script>
 
 <svelte:head>
@@ -31,7 +32,7 @@
 			<input type="checkbox" />
 			<div class="collapse-title text-xl font-medium">Sections</div>
 			<div class="collapse-content">
-				<Sections />
+				<Sections sections={$currentSongSections} />
 			</div>
 		</div>
 		<div class="card bg-base-100">

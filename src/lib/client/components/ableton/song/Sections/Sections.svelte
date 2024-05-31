@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { currentSongSections } from '$lib/client/stores/ableton/derived/song-sections';
+	import type { SongSection } from '$lib/client/stores/ableton/derived/songs';
 	import Section from './Section.svelte';
+	export let sections: SongSection[];
 </script>
 
 <ul class="flex flex-col gap-2">
-	{#each $currentSongSections as section}
+	{#each sections as section}
 		<Section {section} />
 	{/each}
 </ul>

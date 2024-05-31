@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Sections from '$lib/client/components/ableton/song/Sections/Sections.svelte';
 	import { songs } from '$lib/client/stores/ableton/derived/songs';
 </script>
 
@@ -17,11 +18,7 @@
 					<input type="checkbox" />
 					<div class="collapse-title text-xl font-medium">{song.sections.length} Sections</div>
 					<div class="collapse-content">
-						<ul>
-							{#each song.sections as section}
-								<li>{section.name}</li>
-							{/each}
-						</ul>
+						<Sections sections={song.sections} />
 					</div>
 				</div>
 			{/if}
