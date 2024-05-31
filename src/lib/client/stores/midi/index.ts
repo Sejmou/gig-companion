@@ -1,6 +1,7 @@
 import { derived, get, writable } from 'svelte/store';
 import { persisted } from 'svelte-persisted-store';
 import { browser } from '$app/environment';
+import { Message as MIDIMessage } from 'webmidi';
 
 const midiAccess = writable<MIDIAccess | null>(null);
 const midiInputsInternal = writable<MIDIInput[]>([]);
@@ -58,7 +59,12 @@ export const currentMidiInput = derived(
 );
 
 function handleMidiMessage(event: MIDIMessageEvent) {
-	console.log('MIDI message received', event.data);
+	if (!event.data) {
+		console.warn('Received MIDI message without data', event);
+		return;
+	}
+	const message = new MIDIMessage(event.data);
+	console.log('MIDI message received', message);
 }
 
 function addListener(input: MIDIInput) {
