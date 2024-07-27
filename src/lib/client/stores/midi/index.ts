@@ -64,7 +64,13 @@ function handleMidiMessage(event: MIDIMessageEvent) {
 		return;
 	}
 	const message = new MIDIMessage(event.data);
-	console.log('MIDI message received', message);
+	const { type, statusByte, dataBytes } = message;
+	console.log('MIDI message received', {
+		type,
+		statusByte,
+		dataByte1: dataBytes[0],
+		dataByte2: dataBytes[1]
+	});
 }
 
 function addListener(input: MIDIInput) {
