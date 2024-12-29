@@ -41,17 +41,27 @@ export type Device = {
  *
  * This excludes properties like `name`, `parentId` or `childIds` that are not observable, but includes `id` and `type` as they are needed to identify the track and type of change.
  */
-export type ObservableTrackStateUpdate =
-	| ObservableGroupTrackStateUpdate
-	| ObservableMidiOrAudioTrackStateUpdate;
+export type TrackStateUpdate =
+	| GroupTrackPrimitivePropUpdate
+	| MidiOrAudioTrackPrimitivePropUpdate
+	| TrackDeviceStateChange;
 // the following does not work as expected:
 // export type ObservableTrackState = Omit<Track, 'name' | 'parentId' | 'childIds'>;
 
-export type ObservableGroupTrackStateUpdate = {
+export type GroupTrackPrimitivePropUpdate = Partial<
+	Pick<GroupTrack, 'id' | 'type' | 'muted' | 'soloed'>
+>;
+export type MidiOrAudioTrackPrimitivePropUpdate = Partial<
+	Pick<MidiOrAudioTrack, 'id' | 'type' | 'muted' | 'soloed' | 'armed' | 'monitoringState'>
+>;
+
+type TrackUpdateBase = {
 	id: string;
-	type: 'group';
-} & Partial<Omit<GroupTrack, 'name' | 'parentId' | 'childIds' | 'children'>>;
-export type ObservableMidiOrAudioTrackStateUpdate = {
-	id: string;
-	type: 'midiOrAudio';
-} & Partial<Omit<MidiOrAudioTrack, 'name' | 'parentId'>>;
+	type: 'midiOrAudio' | 'group';
+};
+
+type TrackDeviceStateChange = TrackUpdateBase & {
+	event: 'trackDeviceStateChange';
+	trackIdx: number;
+	active: boolean;
+};

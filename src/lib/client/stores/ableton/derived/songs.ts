@@ -78,33 +78,31 @@ export const songs = derived(cuePoints, ($cuePoints) => {
 	return songs;
 });
 
-const currentSongIdx = derived([songs, timeBeats], ([$songs, $timeBeats]) => {
-	for (let i = 0; i < $songs.length; i++) {
-		const song = $songs[i]!;
-		if ($timeBeats >= song.start.time && $timeBeats < song.end.time) {
-			return i;
-		}
-	}
-	return -1;
-});
-
-export const currentSong = derived([songs, currentSongIdx], ([$songs, $currentSongIdx]) => {
-	return $currentSongIdx === -1 ? undefined : $songs[$currentSongIdx];
+export const currentSong = derived([songs, timeBeats], ([$songs, $timeBeats]) => {
+	return $songs.find((song) => $timeBeats >= song.start.time && $timeBeats < song.end.time);
 });
 export const currentSongName = derived(currentSong, ($currentSong) => $currentSong?.name);
 
-export const nextSong = derived([songs, currentSongIdx], ([$songs, $currentSongIdx]) => {
-	if ($currentSongIdx === -1) {
-		return undefined;
+export const nextSong = derived([songs, currentSong], ([$songs, $currentSong]) => {
+	if (!$currentSong) {
+		return;
 	}
-	return $songs[$currentSongIdx + 1];
+	const currentIdx = $songs.indexOf($currentSong);
+	if (currentIdx === $songs.length - 1) {
+		return;
+	}
+	return $songs[currentIdx + 1];
 });
 
-export const prevSong = derived([songs, currentSongIdx], ([$songs, $currentSongIdx]) => {
-	if ($currentSongIdx === -1) {
-		return undefined;
+export const prevSong = derived([songs, currentSong], ([$songs, $currentSong]) => {
+	if (!$currentSong) {
+		return;
 	}
-	return $songs[$currentSongIdx - 1];
+	const currentIdx = $songs.indexOf($currentSong);
+	if (currentIdx === 0) {
+		return;
+	}
+	return $songs[currentIdx - 1];
 });
 
 export const setCurrentSongIdx = (idx: number) => {

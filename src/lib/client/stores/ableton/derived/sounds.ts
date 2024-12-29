@@ -9,7 +9,7 @@ import {
 } from '../track';
 import { currentSongName } from './songs';
 
-const songSoundsGroupTrackName = 'Song Sounds';
+const songSoundsGroupTrackName = 'Guitar Sounds';
 export const songSoundsGroup = derived(rootTracks, ($rootTracks) => {
 	return $rootTracks.find((track) => track.name === songSoundsGroupTrackName);
 });

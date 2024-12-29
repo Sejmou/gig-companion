@@ -3,8 +3,8 @@ import { ws } from '../websocket-connection';
 import type {
 	GroupTrack,
 	MidiOrAudioTrack,
-	ObservableGroupTrackStateUpdate,
-	ObservableMidiOrAudioTrackStateUpdate,
+	GroupTrackPrimitivePropUpdate,
+	MidiOrAudioTrackPrimitivePropUpdate,
 	Track
 } from '$lib/types/ableton/track/state';
 import type { ScopeActionMessage } from '$lib/types/ableton/client';
@@ -209,7 +209,7 @@ function createMidiOrAudioTrackManagementTools(track: MidiOrAudioTrack): {
 function createWebSocketServerSyncedTrackPropStore<T>(
 	id: string,
 	type: 'group' | 'midiOrAudio',
-	property: keyof ObservableGroupTrackStateUpdate | keyof ObservableMidiOrAudioTrackStateUpdate,
+	property: keyof GroupTrackPrimitivePropUpdate | keyof MidiOrAudioTrackPrimitivePropUpdate,
 	initialValue: T
 ) {
 	const { subscribe, set, update } = writable(initialValue);
@@ -260,9 +260,7 @@ export type GroupTrackState = CombinedType<
 export type MidiOrAudioTrackState = CombinedType<MidiOrAudioTrack, MidiOrAudioTrackStores>;
 
 // I absolutely HATE what I did here, but I don't know how to do it better atm
-type ObservableGroupTrackStateProps = Required<
-	Omit<ObservableGroupTrackStateUpdate, 'id' | 'type'>
->;
+type ObservableGroupTrackStateProps = Required<Omit<GroupTrackPrimitivePropUpdate, 'id' | 'type'>>;
 type GroupTrackStores = Required<{
 	[K in keyof ObservableGroupTrackStateProps]: Writable<ObservableGroupTrackStateProps[K]>;
 }>;
@@ -271,7 +269,7 @@ type GroupTrackStoreUpdaters = {
 };
 
 type ObservableMidiOrAudioTrackStateProps = Required<
-	Omit<ObservableMidiOrAudioTrackStateUpdate, 'id' | 'type'>
+	Omit<MidiOrAudioTrackPrimitivePropUpdate, 'id' | 'type'>
 >;
 type MidiOrAudioTrackStores = Required<{
 	[K in keyof ObservableMidiOrAudioTrackStateProps]: Writable<

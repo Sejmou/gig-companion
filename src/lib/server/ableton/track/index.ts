@@ -1,7 +1,7 @@
 import type {
 	GroupTrack,
 	MidiOrAudioTrack,
-	ObservableTrackStateUpdate,
+	TrackStateUpdate,
 	Track
 } from '$lib/types/ableton/track/state';
 import type { Track as AbletonTrack } from 'ableton-js/ns/track';
@@ -147,7 +147,7 @@ export class TrackStateManager
 		}
 	}
 
-	private sendUpdate(update: ObservableTrackStateUpdate) {
+	private sendUpdate(update: TrackStateUpdate) {
 		this.notifyObservers({
 			scope: 'track',
 			update

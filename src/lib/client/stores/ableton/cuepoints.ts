@@ -41,3 +41,7 @@ export const cuePoints: Readable<CuePointWithActions[]> = derived(
 		return cuePointsWithActions;
 	}
 );
+
+cuePoints.subscribe((cuePoints) => {
+	console.log('cuePoints', cuePoints);
+});

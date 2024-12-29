@@ -1,11 +1,11 @@
 import type { CuePoint, CuePointUpdate } from './cuepoint/state';
 import type { SetState } from './set/state';
-import type { ObservableTrackStateUpdate, Track } from './track/state';
+import type { TrackStateUpdate, Track } from './track/state';
 
 // =====STATE SNAPSHOTS=====
 type StateSnapshotScopes = {
 	set: SetState;
-	track: ObservableTrackStateUpdate;
+	track: TrackStateUpdate;
 	tracks: Track[];
 	cuepoints: CuePoint[];
 };
@@ -31,7 +31,7 @@ export const isStateSnapshotMessage = (message: unknown): message is StateSnapsh
 // =====STATE UPDATES=====
 type StateUpdateScopes = {
 	set: Partial<SetState>;
-	track: ObservableTrackStateUpdate;
+	track: TrackStateUpdate;
 	/**
 	 * Contains the name and new time of the updated cue point.
 	 */

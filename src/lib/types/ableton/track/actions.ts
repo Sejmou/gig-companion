@@ -1,6 +1,6 @@
-import type { ObservableTrackStateUpdate } from './state';
+import type { TrackStateUpdate } from './state';
 
 /**
  * Clients can update any prop that can be observed by the server.
  */
-export type TrackAction = ObservableTrackStateUpdate;
+export type TrackAction = TrackStateUpdate;
