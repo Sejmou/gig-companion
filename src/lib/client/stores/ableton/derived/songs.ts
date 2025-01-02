@@ -14,7 +14,6 @@ export const songs = derived(cuePoints, ($cuePoints) => {
 		const cuePoint = $cuePoints[i]!;
 		const { level, name } = processCuePointName(cuePoint.name);
 		if (level === 0) {
-			// TODO: consider creating end cue point automatically if it doesn't exist OR handle missing end cue point in some smart way
 			if (name === '[End]') {
 				endReached = true;
 				// found end cue point!
@@ -45,7 +44,9 @@ export const songs = derived(cuePoints, ($cuePoints) => {
 			currentSong = {
 				name,
 				start: cuePoint,
-				end: cuePoint,
+				// last song doesn't have a specified end cue point
+				// if there is a 'next song', its start cue point will become the end cue point of this song
+				end: undefined,
 				sections: []
 			};
 			songs.push(currentSong);
@@ -79,7 +80,11 @@ export const songs = derived(cuePoints, ($cuePoints) => {
 });
 
 export const currentSong = derived([songs, timeBeats], ([$songs, $timeBeats]) => {
-	return $songs.find((song) => $timeBeats >= song.start.time && $timeBeats < song.end.time);
+	// NOTE: last song does NOT have a defined end cue point, hence the song.end === undefined check
+	return $songs.find(
+		(song) =>
+			$timeBeats >= song.start.time && (song.end === undefined || $timeBeats < song.end.time)
+	);
 });
 export const currentSongName = derived(currentSong, ($currentSong) => $currentSong?.name);
 
@@ -133,7 +138,7 @@ function processCuePointName(name: string) {
 export type Song = {
 	name: string;
 	start: CuePointWithActions;
-	end: CuePointWithActions;
+	end?: CuePointWithActions;
 	sections: SongSection[];
 };
 
