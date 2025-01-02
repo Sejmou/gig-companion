@@ -2,6 +2,7 @@ import { derived, get, writable } from 'svelte/store';
 import { persisted } from 'svelte-persisted-store';
 import { browser } from '$app/environment';
 import { Message as MIDIMessage } from 'webmidi';
+import { takeActionIfMapped } from './action-mappings';
 
 const midiAccess = writable<MIDIAccess | null>(null);
 const midiInputsInternal = writable<MIDIInput[]>([]);
@@ -46,17 +47,30 @@ export const currentMidiInputMeta = derived(midiInputMeta, ($midiInputMeta) => $
 export const currentMidiInput = derived(
 	[midiInputs, midiInputMeta],
 	([$midiInputs, $midiInputMeta]) => {
-		removeCurrentInputListener();
+		// crazy, but this actually seems to work without getting into recursion issues, noice
+		const $currentInput = get(currentMidiInput);
+		if ($currentInput) {
+			$currentInput.removeEventListener('midimessage', handleMidiMessage);
+			console.log('MIDI input listener remove for input with ID', $currentInput.id);
+		}
 		if ($midiInputMeta === null) {
 			return null;
 		}
 		const input = $midiInputs.find((input) => input.id === $midiInputMeta.id);
 		if (input) {
-			addListener(input);
+			input.addEventListener('midimessage', handleMidiMessage);
+			console.log('MIDI input listener added to input', input);
 			return input;
 		}
 	}
 );
+
+type MIDIMessageWithTimestamp = {
+	message: MIDIMessage;
+	timestamp: number;
+};
+
+export const lastMidiMessage = writable<MIDIMessageWithTimestamp | null>(null);
 
 function handleMidiMessage(event: MIDIMessageEvent) {
 	if (!event.data) {
@@ -64,26 +78,13 @@ function handleMidiMessage(event: MIDIMessageEvent) {
 		return;
 	}
 	const message = new MIDIMessage(event.data);
-	const { type, statusByte, dataBytes } = message;
-	console.log('MIDI message received', {
-		type,
-		statusByte,
-		dataByte1: dataBytes[0],
-		dataByte2: dataBytes[1]
-	});
-}
-
-function addListener(input: MIDIInput) {
-	input.addEventListener('midimessage', handleMidiMessage);
-	console.log('MIDI input listener added for input with ID', input.id);
-}
-
-/**
- * call this BEFORE changing the current MIDI input. Otherwise we would still listen to messages from the old input after the change
- */
-function removeCurrentInputListener() {
-	const currentInput = get(currentMidiInput);
-	if (!currentInput) return;
-	currentInput.removeEventListener('midimessage', handleMidiMessage);
-	console.log('MIDI input listener remove for input with ID', currentInput.id);
+	const { type } = message;
+	// ignore activesensing messages as they are sent very frequently and apparently only sent by the MIDI device to indicate that it is still connected
+	// we don't really need to know about this atm; also, it looks like some devices don't even send this message
+	if (type === 'activesensing') {
+		return;
+	}
+	console.log('MIDI message received', message);
+	lastMidiMessage.set({ message, timestamp: event.timeStamp });
+	takeActionIfMapped(message);
 }

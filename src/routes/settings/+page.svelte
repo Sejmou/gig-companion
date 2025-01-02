@@ -1,4 +1,5 @@
 <script lang="ts">
+	import MidiMappings from './MidiMappings.svelte';
 	import PlayModeSelect from './PlayModeSelect.svelte';
 	import SelectMidiInput from './SelectMidiInput.svelte';
 </script>
@@ -11,5 +12,6 @@
 	<div>
 		<h3>MIDI</h3>
 		<SelectMidiInput />
+		<MidiMappings />
 	</div>
 </div>
