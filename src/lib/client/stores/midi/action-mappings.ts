@@ -8,7 +8,8 @@ import { get } from 'svelte/store';
 const actionExecutors = {
 	start: () => playing.set(true),
 	stop: () => playing.set(false),
-	record: () => recording.update((recording) => !recording),
+	'toggle record': () => recording.update((recording) => !recording),
+	'toggle playback': () => playing.update((playing) => !playing),
 	'previous song': () => goToPrevSong(),
 	'next song': () => goToNextSong(),
 	'next sound': () => switchToNextSound(),

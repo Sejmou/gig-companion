@@ -11,14 +11,17 @@ export const midiInputs = derived(midiInputsInternal, ($midiInputs) => $midiInpu
 export async function initializeMidi() {
 	if (!browser) return;
 	try {
-		navigator.requestMIDIAccess().then((access) => {
-			midiAccess.set(access);
-			console.log('MIDI initialized', access);
+		const access = await navigator.requestMIDIAccess();
+		midiAccess.set(access);
+		console.log('MIDI initialized', access);
+		midiInputsInternal.set(Array.from(access.inputs.values()));
+		access.addEventListener('statechange', () => {
+			// just update all MIDI inputs whenever state changes in any way
 			midiInputsInternal.set(Array.from(access.inputs.values()));
-			access.addEventListener('statechange', () => {
-				// just update all MIDI inputs whenever state changes in any way
-				midiInputsInternal.set(Array.from(access.inputs.values()));
-			});
+		});
+		// TODO: rewrite this mess; apparently code breaks if I don't subscribe here which feels weird
+		currentMidiInput.subscribe((input) => {
+			console.log('MIDI input changed', input);
 		});
 	} catch (e) {
 		console.warn('MIDI not supported in this browser.');

@@ -1,4 +1,4 @@
-import { derived } from 'svelte/store';
+import { derived, get } from 'svelte/store';
 import { rootTracks } from '../tracks';
 import { songs } from './songs';
 import {
@@ -105,7 +105,7 @@ export const soundsForOtherSongs = derived(
 );
 
 export const currentSound = derived(currentSoundsAudioTracks, ($currentAudioTracks) => {
-	return $currentAudioTracks.find((track) => track.armed);
+	return $currentAudioTracks.find((track) => get(track.armed));
 });
 
 export const nextSound = derived(

@@ -114,7 +114,7 @@ function createPlayingStore() {
 }
 
 function createRecordingStore() {
-	const { subscribe, update } = recordingInternal;
+	const { subscribe } = recordingInternal;
 
 	const set = (newValue: boolean) => {
 		const action: ScopeAction<'set'> = {
@@ -124,10 +124,15 @@ function createRecordingStore() {
 		sendSetAction(action);
 	};
 
+	const updateRecording = (updater: (value: boolean) => boolean) => {
+		const newValue = updater(get(recording));
+		set(newValue);
+	};
+
 	return {
 		subscribe,
 		set,
-		update
+		update: updateRecording
 	};
 }
 
